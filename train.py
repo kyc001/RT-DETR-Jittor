@@ -27,7 +27,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=2)
     parser.add_argument('--lr', type=float, default=1e-5)
     parser.add_argument('--weight_decay', type=float, default=1e-4)
-    parser.add_argument('--epochs', type=int, default=30)
+    parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--lr_drop_epoch', type=int, default=20)
     parser.add_argument('--clip_max_norm', type=float,
                         default=0.1, help='Gradient clipping max norm.')
@@ -46,7 +46,7 @@ def main():
     loader = jt.dataset.DataLoader(
         dataset,
         batch_size=args.batch_size,
-        shuffle=False,
+        shuffle=True,
         drop_last=True
     )
 
@@ -113,8 +113,18 @@ def main():
             f"Epoch {epoch+1} finished. Avg Loss: {avg_loss:.4f} | LR: {optimizer.lr:.1e}\n")
         loss_log.append(avg_loss)
 
-        model.save(f'model_epoch_{epoch+1}.pkl')
-        np.save('loss_curve.npy', np.array(loss_log))
+# 在 train.py 的循环末尾
+
+        # --- 关键修改：指定保存路径 ---
+        output_dir = "checkpoints"
+        # 确保文件夹存在，如果不存在则创建
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        # 将模型保存到指定文件夹内
+        model.save(os.path.join(output_dir, f'model_epoch_{epoch+1}.pkl'))
+        # 将损失日志也保存到该文件夹
+        np.save(os.path.join(output_dir, 'loss_curve.npy'), np.array(loss_log))
 
     print("Training finished!")
 

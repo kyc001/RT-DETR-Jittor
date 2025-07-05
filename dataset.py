@@ -6,6 +6,7 @@ import os
 import json
 import numpy as np
 
+
 def xyxy_to_cxcywh_and_normalize(boxes, w, h):
     if boxes.shape[0] == 0:
         return boxes
@@ -13,6 +14,7 @@ def xyxy_to_cxcywh_and_normalize(boxes, w, h):
     x0, y0, x1, y1 = boxes_scaled.unbind(-1)
     b = [(x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0), (y1 - y0)]
     return jt.stack(b, dim=-1)
+
 
 class COCODataset(jt.dataset.Dataset):
     def __init__(self, img_dir, ann_file, transforms=None):
@@ -25,26 +27,19 @@ class COCODataset(jt.dataset.Dataset):
 
         self.images = {img['id']: img for img in ann_data['images']}
         self.annotations = ann_data['annotations']
-        
+
         self.imgid2anns = {}
         for a in self.annotations:
             self.imgid2anns.setdefault(a['image_id'], []).append(a)
 
         self.ids = list(sorted(self.images.keys()))
-        
+
         original_count = len(self.ids)
-        self.ids = [img_id for img_id in self.ids if len(self.imgid2anns.get(img_id, [])) > 0]
-        
+        self.ids = [img_id for img_id in self.ids if len(
+            self.imgid2anns.get(img_id, [])) > 0]
+
         cat_ids = sorted({a['category_id'] for a in self.annotations})
         self.catid2contiguous = {cat_id: i for i, cat_id in enumerate(cat_ids)}
-
-        # ## <<< 关键修改：进入临时调试模式 >>>
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("!!! 警告：数据集当前处于【调试模式】，只加载少量特定图片。!!!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        self.ids = [435081, 303566] # <--- 使用我们选定的ID
-        print(f"调试模式下，使用图片ID: {self.ids}")
-
 
     def __len__(self):
         return len(self.ids)
@@ -54,11 +49,11 @@ class COCODataset(jt.dataset.Dataset):
         img_info = self.images[img_id]
         img_path = os.path.join(self.img_dir, img_info['file_name'])
         img = Image.open(img_path).convert('RGB')
-        
+
         w, h = img.size
-        
+
         anns = self.imgid2anns.get(img_id, [])
-        
+
         boxes = []
         labels = []
         for a in anns:
@@ -67,16 +62,18 @@ class COCODataset(jt.dataset.Dataset):
             boxes.append([x, y, x + bw, y + h])
             labels.append(self.catid2contiguous[a['category_id']])
 
-        boxes = jt.array(boxes, dtype='float32') if boxes else jt.zeros((0, 4), dtype='float32')
-        labels = jt.array(labels, dtype='int64') if labels else jt.zeros((0,), dtype='int64')
+        boxes = jt.array(boxes, dtype='float32') if boxes else jt.zeros(
+            (0, 4), dtype='float32')
+        labels = jt.array(labels, dtype='int64') if labels else jt.zeros(
+            (0,), dtype='int64')
 
         boxes_cxcywh = xyxy_to_cxcywh_and_normalize(boxes, w, h)
 
         if self.transforms:
             img = self.transforms(img)
-            
+
         return img, boxes_cxcywh, labels
-    
+
     @staticmethod
     def collate_batch(batch):
         imgs = [s[0] for s in batch]

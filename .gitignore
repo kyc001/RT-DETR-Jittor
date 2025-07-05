@@ -30,3 +30,5 @@ loss_curve.npy
 # 虚拟环境文件夹
 venv/
 env/
+
+checkpoints/
