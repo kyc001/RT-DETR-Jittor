@@ -101,37 +101,35 @@ class DETRLoss(nn.Module):
 
     def _get_loss(self, loss_name, outputs, targets, indices, num_boxes):
         if loss_name == 'labels':
-            src_logits = outputs['pred_logits']  # shape: (B, N, C)
+            src_logits = outputs['pred_logits']
             target_classes_o = jt.concat(
                 [t["labels"][J] for t, (_, J) in zip(targets, indices)])
-
             target_classes = jt.full(
-                src_logits.shape[:2], self.num_classes, dtype='int64')  # shape: (B, N)
+                src_logits.shape[:2], self.num_classes, dtype='int64')
             src_idx = self._get_src_permutation_idx(indices)
             target_classes[src_idx] = target_classes_o
 
-            # ## <<< 关键修正：将 logits 和 target 展平为 2D 和 1D >>>
-            # 将 (B, N, C) -> (B*N, C)
             src_logits_flat = src_logits.reshape(-1, src_logits.shape[-1])
-            # 将 (B, N) -> (B*N,)
             target_classes_flat = target_classes.reshape(-1)
             return self.cls_loss(src_logits_flat, target_classes_flat)
 
-        if loss_name in ['boxes', 'giou']:
-            idx = self._get_src_permutation_idx(indices)
-            src_boxes = outputs['pred_boxes'][idx]
-            target_boxes = jt.concat([t['boxes'][i]
-                                     for t, (_, i) in zip(targets, indices)])
+        # ## <<< 关键修正：检查 num_boxes 是否大于 0 >>>
+        if num_boxes > 0:
+            if loss_name in ['boxes', 'giou']:
+                idx = self._get_src_permutation_idx(indices)
+                src_boxes = outputs['pred_boxes'][idx]
+                target_boxes = jt.concat([t['boxes'][i]
+                                         for t, (_, i) in zip(targets, indices)])
 
-            if num_boxes == 0:
-                return jt.zeros(1)
+                if loss_name == 'boxes':
+                    return (jt.abs(src_boxes - target_boxes)).sum() / num_boxes
+                else:
+                    giou = generalized_box_iou(box_cxcywh_to_xyxy(
+                        src_boxes), box_cxcywh_to_xyxy(target_boxes)).diag()
+                    return (1 - giou).sum() / num_boxes
 
-            if loss_name == 'boxes':
-                return (jt.abs(src_boxes - target_boxes)).sum() / num_boxes
-            else:
-                giou = generalized_box_iou(box_cxcywh_to_xyxy(
-                    src_boxes), box_cxcywh_to_xyxy(target_boxes)).diag()
-                return (1 - giou).sum() / num_boxes
+        # 如果 num_boxes 为 0，或者 loss_name 不匹配，返回 0
+        return jt.zeros(1)
 
     def execute(self, pred_logits, pred_boxes, targets):
         outputs = {'pred_logits': pred_logits, 'pred_boxes': pred_boxes}
