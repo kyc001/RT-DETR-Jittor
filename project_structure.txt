@@ -1,0 +1,23 @@
+RT-DETR/
+├── __pycache__/
+├── annotations/
+│   ├── captions_train2017.json
+│   ├── captions_val2017.json
+│   ├── instances_train2017.json
+│   ├── instances_val2017.json
+│   ├── person_keypoints_train2017.json
+│   └── person_keypoints_val2017.json
+├── data/
+│   └── coco/
+│       ├── val2017/
+│       ├── annotations_trainval2017.zip
+│       ├── val2017.zip
+│       └── download_coco_val2017.sh
+├── annotations_trainval2017.zip
+├── dataset.py
+├── loss_plot.py
+├── loss.py
+├── model.py
+├── README.md
+├── train.py
+├── vis.py 
