@@ -1,8 +1,20 @@
+# dataset.py
+
 import jittor as jt
 from PIL import Image
 import os
 import json
 import numpy as np
+
+
+def xyxy_to_cxcywh_and_normalize(boxes, w, h):
+    # 将 xyxy 格式的 boxes 转换为归一化的 cxcywh 格式
+    if boxes.shape[0] == 0:
+        return boxes
+    boxes_scaled = boxes / jt.array([w, h, w, h])
+    x0, y0, x1, y1 = boxes_scaled.unbind(-1)
+    b = [(x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0), (y1 - y0)]
+    return jt.stack(b, dim=-1)
 
 
 class COCODataset(jt.dataset.Dataset):
@@ -14,15 +26,18 @@ class COCODataset(jt.dataset.Dataset):
         with open(ann_file, 'r') as f:
             ann_data = json.load(f)
 
-        self.images = ann_data['images']
+        self.images = {img['id']: img for img in ann_data['images']}
         self.annotations = ann_data['annotations']
 
         self.imgid2anns = {}
         for a in self.annotations:
             self.imgid2anns.setdefault(a['image_id'], []).append(a)
 
-        self.id2name = {img['id']: img['file_name'] for img in self.images}
-        self.ids = [img['id'] for img in self.images]
+        self.ids = list(sorted(self.images.keys()))
+
+        # 过滤掉没有标注的图片
+        self.ids = [img_id for img_id in self.ids if len(
+            self.imgid2anns.get(img_id, [])) > 0]
 
         cat_ids = sorted({a['category_id'] for a in self.annotations})
         self.catid2contiguous = {cat_id: i for i, cat_id in enumerate(cat_ids)}
@@ -32,41 +47,38 @@ class COCODataset(jt.dataset.Dataset):
 
     def __getitem__(self, idx):
         img_id = self.ids[idx]
-        img_path = os.path.join(self.img_dir, self.id2name[img_id])
+        img_info = self.images[img_id]
+        img_path = os.path.join(self.img_dir, img_info['file_name'])
         img = Image.open(img_path).convert('RGB')
+
+        w, h = img.size
 
         anns = self.imgid2anns.get(img_id, [])
 
         boxes = []
         labels = []
-
         for a in anns:
             bbox = a['bbox']
-            x, y, w, h = bbox
-            boxes.append([x, y, x + w, y + h])
+            x, y, bw, bh = bbox
+            boxes.append([x, y, x + bw, y + bh])  # xyxy 格式
             labels.append(self.catid2contiguous[a['category_id']])
 
-        if not boxes:
-            boxes = np.zeros((0, 4), dtype=np.float32)
-            labels = np.zeros((0,), dtype=np.int32)
-        else:
-            boxes = np.array(boxes, dtype=np.float32)
-            labels = np.array(labels, dtype=np.int32)
+        # 转换为 Jittor Var
+        boxes = jt.array(boxes, dtype='float32') if boxes else jt.zeros(
+            (0, 4), dtype='float32')
+        labels = jt.array(labels, dtype='int64') if labels else jt.zeros(
+            (0,), dtype='int64')
 
-        boxes = jt.array(boxes)
-        labels = jt.array(labels)
+        # ## 关键修改：将坐标转换为归一化的 cxcywh 格式
+        boxes_cxcywh = xyxy_to_cxcywh_and_normalize(boxes, w, h)
 
         if self.transforms:
             img = self.transforms(img)
 
-        return img, boxes, labels
+        return img, boxes_cxcywh, labels
 
-    # ## <<< 关键修正：将打包逻辑作为 collate_batch 方法添加到 Dataset 类中 >>>
     @staticmethod
     def collate_batch(batch):
-        """
-        这个方法会被 DataLoader 自动调用。
-        """
         imgs = [s[0] for s in batch]
         boxes = [s[1] for s in batch]
         labels = [s[2] for s in batch]

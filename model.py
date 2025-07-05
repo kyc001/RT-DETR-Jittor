@@ -1,51 +1,91 @@
+# model.py
+
 import jittor as jt
 import jittor.nn as nn
 
+# ======================================================================
+# 1. ResNet Backbone Implementation
+# ======================================================================
 
-class BasicBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, stride=1):
-        super().__init__()
-        self.conv1 = nn.Conv(in_channels, out_channels, 3, stride, 1)
-        self.bn1 = nn.BatchNorm(out_channels)
-        self.act = nn.ReLU()
-        self.conv2 = nn.Conv(out_channels, out_channels, 3, 1, 1)
-        self.bn2 = nn.BatchNorm(out_channels)
-        if stride != 1 or in_channels != out_channels:
-            self.downsample = nn.Conv(in_channels, out_channels, 1, stride)
-        else:
-            self.downsample = None
+
+class Bottleneck(nn.Module):
+    expansion = 4
+
+    def __init__(self, inplanes, planes, stride=1, downsample=None):
+        super(Bottleneck, self).__init__()
+        self.conv1 = nn.Conv(inplanes, planes, kernel_size=1, bias=False)
+        self.bn1 = nn.BatchNorm(planes)
+        self.conv2 = nn.Conv(planes, planes, kernel_size=3,
+                             stride=stride, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm(planes)
+        self.conv3 = nn.Conv(planes, planes * self.expansion,
+                             kernel_size=1, bias=False)
+        self.bn3 = nn.BatchNorm(planes * self.expansion)
+        self.relu = nn.ReLU()
+        self.downsample = downsample
 
     def execute(self, x):
-        identity = x
-        out = self.act(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
+        residual = x
+        out = self.relu(self.bn1(self.conv1(x)))
+        out = self.relu(self.bn2(self.conv2(out)))
+        out = self.bn3(self.conv3(out))
         if self.downsample is not None:
-            identity = self.downsample(identity)
-        out += identity
-        out = self.act(out)
+            residual = self.downsample(x)
+        out += residual
+        out = self.relu(out)
         return out
 
 
-class CSPDarkNetTiny(nn.Module):
-    def __init__(self, in_channels=3):
-        super().__init__()
-        self.stem = nn.Sequential(
-            nn.Conv(in_channels, 32, 3, 1, 1),
-            nn.BatchNorm(32),
-            nn.ReLU()
-        )
-        self.layer1 = BasicBlock(32, 64, stride=2)
-        self.layer2 = BasicBlock(64, 128, stride=2)
-        self.layer3 = BasicBlock(128, 256, stride=2)
-        self.layer4 = BasicBlock(256, 512, stride=2)
+class ResNet(nn.Module):
+    def __init__(self, block, layers):
+        super(ResNet, self).__init__()
+        self.inplanes = 64
+        self.conv1 = nn.Conv(3, 64, kernel_size=7,
+                             stride=2, padding=3, bias=False)
+        self.bn1 = nn.BatchNorm(64)
+        self.relu = nn.ReLU()
+        self.maxpool = nn.Pool(kernel_size=3, stride=2, padding=1)
+        self.layer1 = self._make_layer(block, 64, layers[0])
+        self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+
+    def _make_layer(self, block, planes, blocks, stride=1):
+        downsample = None
+        if stride != 1 or self.inplanes != planes * block.expansion:
+            downsample = nn.Sequential(
+                nn.Conv(self.inplanes, planes * block.expansion,
+                        kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm(planes * block.expansion)
+            )
+        layers = []
+        layers.append(block(self.inplanes, planes, stride, downsample))
+        self.inplanes = planes * block.expansion
+        for _ in range(1, blocks):
+            layers.append(block(self.inplanes, planes))
+        return nn.Sequential(*layers)
 
     def execute(self, x):
-        x = self.stem(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-        return x
+        x = self.relu(self.bn1(self.conv1(x)))
+        x = self.maxpool(x)
+
+        c2 = self.layer1(x)
+        c3 = self.layer2(c2)
+        c4 = self.layer3(c3)
+        c5 = self.layer4(c4)
+
+        # 返回三个不同尺度的特征图
+        return [c3, c4, c5]
+
+
+def ResNet50():
+    return ResNet(Bottleneck, [3, 4, 6, 3])
+
+# ======================================================================
+# 2. Transformer Components (with Auxiliary Loss support)
+# ======================================================================
+
+# MultiHeadSelfAttention (no changes needed)
 
 
 class MultiHeadSelfAttention(nn.Module):
@@ -60,13 +100,12 @@ class MultiHeadSelfAttention(nn.Module):
         self.proj = nn.Linear(embed_dim, embed_dim)
 
     def execute(self, query, key=None, value=None):
-        # 支持自注意力和交叉注意力
         if key is None:
             key = value = query
         B, N, C = query.shape
         Bk, Nk, Ck = key.shape
-        q = self.q_proj(query).reshape(B, N, self.num_heads, self.head_dim).transpose(
-            0, 2, 1, 3)  # (B, num_heads, N, head_dim)
+        q = self.q_proj(query).reshape(B, N, self.num_heads,
+                                       self.head_dim).transpose(0, 2, 1, 3)
         k = self.k_proj(key).reshape(Bk, Nk, self.num_heads,
                                      self.head_dim).transpose(0, 2, 1, 3)
         v = self.v_proj(value if value is not None else key).reshape(
@@ -77,6 +116,8 @@ class MultiHeadSelfAttention(nn.Module):
         out = self.proj(out)
         return out
 
+# TransformerEncoderLayer and TransformerEncoder (no changes needed)
+
 
 class TransformerEncoderLayer(nn.Module):
     def __init__(self, embed_dim, num_heads, mlp_ratio=4.0, dropout=0.1):
@@ -85,10 +126,9 @@ class TransformerEncoderLayer(nn.Module):
         self.attn = MultiHeadSelfAttention(embed_dim, num_heads)
         self.norm2 = nn.LayerNorm(embed_dim)
         self.mlp = nn.Sequential(
-            nn.Linear(embed_dim, int(embed_dim * mlp_ratio)),
-            nn.ReLU(),
-            nn.Linear(int(embed_dim * mlp_ratio), embed_dim),
-            nn.Dropout(dropout)
+            nn.Linear(embed_dim, int(embed_dim * mlp_ratio)), nn.ReLU(),
+            nn.Linear(int(embed_dim * mlp_ratio),
+                      embed_dim), nn.Dropout(dropout)
         )
 
     def execute(self, x):
@@ -100,14 +140,15 @@ class TransformerEncoderLayer(nn.Module):
 class TransformerEncoder(nn.Module):
     def __init__(self, embed_dim, num_heads, depth):
         super().__init__()
-        self.layers = nn.ModuleList([
-            TransformerEncoderLayer(embed_dim, num_heads) for _ in range(depth)
-        ])
+        self.layers = nn.ModuleList([TransformerEncoderLayer(
+            embed_dim, num_heads) for _ in range(depth)])
 
     def execute(self, x):
         for layer in self.layers:
             x = layer(x)
         return x
+
+# TransformerDecoderLayer (no changes needed)
 
 
 class TransformerDecoderLayer(nn.Module):
@@ -119,10 +160,9 @@ class TransformerDecoderLayer(nn.Module):
         self.cross_attn = MultiHeadSelfAttention(embed_dim, num_heads)
         self.norm3 = nn.LayerNorm(embed_dim)
         self.mlp = nn.Sequential(
-            nn.Linear(embed_dim, int(embed_dim * mlp_ratio)),
-            nn.ReLU(),
-            nn.Linear(int(embed_dim * mlp_ratio), embed_dim),
-            nn.Dropout(dropout)
+            nn.Linear(embed_dim, int(embed_dim * mlp_ratio)), nn.ReLU(),
+            nn.Linear(int(embed_dim * mlp_ratio),
+                      embed_dim), nn.Dropout(dropout)
         )
 
     def execute(self, tgt, memory):
@@ -131,62 +171,89 @@ class TransformerDecoderLayer(nn.Module):
         tgt = tgt + self.mlp(self.norm3(tgt))
         return tgt
 
+# ## <<< 关键修改：Decoder 返回所有中间层结果 >>>
+
 
 class TransformerDecoder(nn.Module):
     def __init__(self, embed_dim, num_heads, depth):
         super().__init__()
-        self.layers = nn.ModuleList([
-            TransformerDecoderLayer(embed_dim, num_heads) for _ in range(depth)
-        ])
+        self.layers = nn.ModuleList([TransformerDecoderLayer(
+            embed_dim, num_heads) for _ in range(depth)])
 
     def execute(self, tgt, memory):
+        output = []
         for layer in self.layers:
             tgt = layer(tgt, memory)
-        return tgt
+            output.append(tgt)
+        # (depth, batch, num_queries, embed_dim)
+        return jt.stack(output, dim=0)
+
+# DetectionHead (no changes needed, but will be applied multiple times)
 
 
 class DetectionHead(nn.Module):
-    def __init__(self, embed_dim, num_classes, num_queries):
+    def __init__(self, embed_dim, num_classes):
         super().__init__()
         self.class_embed = nn.Linear(embed_dim, num_classes)
         self.bbox_embed = nn.Sequential(
-            nn.Linear(embed_dim, embed_dim),
-            nn.ReLU(),
-            nn.Linear(embed_dim, 4),
-            nn.Sigmoid()  # 归一化到0-1
+            nn.Linear(embed_dim, embed_dim), nn.ReLU(),
+            nn.Linear(embed_dim, 4), nn.Sigmoid()
         )
-        self.num_queries = num_queries
 
     def execute(self, x):
-        # x: (batch, num_queries, embed_dim)
-        logits = self.class_embed(x)  # (batch, num_queries, num_classes)
-        boxes = self.bbox_embed(x)    # (batch, num_queries, 4)
+        logits = self.class_embed(x)
+        boxes = self.bbox_embed(x)
         return logits, boxes
+
+# ======================================================================
+# 3. Main RT-DETR Model (Upgraded)
+# ======================================================================
 
 
 class RTDETR(nn.Module):
-    def __init__(self, num_classes=80, num_queries=100, embed_dim=256, num_heads=8, enc_depth=6, dec_depth=6):
+    def __init__(self, num_classes=81, num_queries=300, embed_dim=256, num_heads=8, enc_depth=1, dec_depth=6):
         super().__init__()
-        self.backbone = CSPDarkNetTiny()
-        self.input_proj = nn.Conv(512, embed_dim, 1)
+        # ## <<< 关键修改：使用 ResNet50 作为骨干网络 >>>
+        self.backbone = ResNet50()
+
+        # ## <<< 关键修改：为多尺度特征创建输入投射层 >>>
+        self.input_proj = nn.ModuleList([
+            nn.Conv(512, embed_dim, 1),  # from C3
+            nn.Conv(1024, embed_dim, 1),  # from C4
+            nn.Conv(2048, embed_dim, 1),  # from C5
+        ])
+
         self.encoder = TransformerEncoder(embed_dim, num_heads, enc_depth)
         self.decoder = TransformerDecoder(embed_dim, num_heads, dec_depth)
         self.query_embed = nn.Parameter(jt.randn(num_queries, embed_dim))
-        self.head = DetectionHead(embed_dim, num_classes, num_queries)
+
+        # ## <<< 关键修改：预测头不再包含 num_queries >>>
+        self.head = DetectionHead(embed_dim, num_classes)
 
     def execute(self, x):
         # x: (batch, 3, H, W)
-        feat = self.backbone(x)  # (batch, 512, H/16, W/16)
-        feat = self.input_proj(feat)  # (batch, embed_dim, H/16, W/16)
+
+        # ## <<< 关键修改：处理多尺度特征 >>>
+        features = self.backbone(x)
+        projections = [proj(feat)
+                       for proj, feat in zip(self.input_proj, features)]
+
+        # 此处简化，只使用最后一层特征 (C5) 送入 Encoder
+        # 完整的 RT-DETR 会有更复杂的特征融合模块
+        feat = projections[-1]
+
         B, C, H, W = feat.shape
         feat = feat.reshape(B, C, -1).transpose(0, 2,
                                                 1)  # (batch, HW, embed_dim)
-        memory = self.encoder(feat)   # (batch, HW, embed_dim)
-        query_embed = jt.unsqueeze(self.query_embed, 0).expand(
-            B, -1, -1)  # (batch, num_queries, embed_dim)
-        # (batch, num_queries, embed_dim)
-        hs = self.decoder(query_embed, memory)
-        logits, boxes = self.head(hs)
-        return logits, boxes
 
-# 后续将集成 Detection Head
+        memory = self.encoder(feat)
+
+        query_embed = jt.unsqueeze(self.query_embed, 0).expand(B, -1, -1)
+
+        # ## <<< 关键修改：hs 现在是 (depth, batch, num_queries, embed_dim) >>>
+        hs = self.decoder(query_embed, memory)
+
+        # ## <<< 关键修改：对 Decoder 的每一层输出都应用预测头 >>>
+        logits, boxes = self.head(hs)
+
+        return logits, boxes
