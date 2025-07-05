@@ -79,6 +79,11 @@ class COCODataset(jt.dataset.Dataset):
 
     @staticmethod
     def collate_batch(batch):
+        """
+        这个方法会被 DataLoader 自动查找并调用。
+        它将一批数据 (一个列表，列表元素是 __getitem__ 的返回值) 
+        打包成一个批处理数据。
+        """
         imgs = [s[0] for s in batch]
         boxes = [s[1] for s in batch]
         labels = [s[2] for s in batch]

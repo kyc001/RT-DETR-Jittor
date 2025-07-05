@@ -1,23 +1,17 @@
-# train.py
-
 import jittor as jt
 import jittor.nn as nn
 from jittor import transform as T
-from jittor.optim import lr_scheduler
+from jittor.optim import AdamW
+from jittor import lr_scheduler
 import os
 import numpy as np
 import argparse
+from tqdm import tqdm
 
+# ## <<< 关键修正：添加了对自定义模块的导入 >>>
 from model import RTDETR
 from dataset import COCODataset
 from loss import DETRLoss
-
-
-def detection_collate(batch):
-    imgs = [s[0] for s in batch]
-    boxes = [s[1] for s in batch]
-    labels = [s[2] for s in batch]
-    return jt.stack(imgs, 0), boxes, labels
 
 
 def main():
@@ -43,14 +37,12 @@ def main():
         T.ImageNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
-    dataset = COCODataset(args.img_dir, args.ann_file,
-                          transforms=transform, is_train=True)
+    dataset = COCODataset(args.img_dir, args.ann_file, transforms=transform)
     loader = jt.dataset.DataLoader(
         dataset,
         batch_size=args.batch_size,
         shuffle=True,
-        drop_last=True,
-        collate_fn=detection_collate
+        drop_last=True
     )
 
     model = RTDETR(num_classes=args.num_classes +
@@ -60,49 +52,48 @@ def main():
         model.load_parameters(jt.load(args.resume))
 
     loss_fn = DETRLoss(num_classes=args.num_classes)
-    optimizer = nn.Adam(model.parameters(), lr=args.lr,
-                        weight_decay=args.weight_decay)
-    scheduler = lr_scheduler.StepLR(
-        optimizer, step_size=args.lr_drop_epoch, gamma=0.1)
+    optimizer = AdamW(model.parameters(), lr=args.lr,
+                      weight_decay=args.weight_decay)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=args.lr_drop_epoch)
 
     print("Start training...")
     loss_log = []
     for epoch in range(args.epochs):
         model.train()
         epoch_loss = 0
-        epoch_loss_cls = 0
-        epoch_loss_bbox = 0
-        epoch_loss_giou = 0
 
-        for i, batch in enumerate(loader):
+        progress_bar = tqdm(
+            loader, desc=f"Epoch {epoch+1}/{args.epochs}", leave=True)
+        for i, batch in enumerate(progress_bar):
             img, boxes, labels = batch
 
             targets = []
-            for i in range(len(boxes)):
-                targets.append({'boxes': boxes[i], 'labels': labels[i]})
+            for j in range(len(boxes)):
+                targets.append({'boxes': boxes[j], 'labels': labels[j]})
 
-            pred_logits, pred_boxes = model(img)
+            outputs_class, outputs_coord = model(img)
+
+            pred_logits = outputs_class[-1]
+            pred_boxes = outputs_coord[-1]
 
             loss_dict = loss_fn(pred_logits, pred_boxes, targets)
             loss = loss_dict['total_loss']
 
             optimizer.step(loss)
 
-            epoch_loss += loss.item()
-            epoch_loss_cls += loss_dict['loss_cls'].item()
-            epoch_loss_bbox += loss_dict['loss_bbox'].item()
-            epoch_loss_giou += loss_dict['loss_giou'].item()
+            current_loss = loss.item()
+            epoch_loss += current_loss
 
-            if i % 50 == 0:
-                print(f"Epoch: {epoch+1}/{args.epochs}, Batch: {i}/{len(loader)}, "
-                      f"LR: {scheduler.get_last_lr()[0]:.1e}, "
-                      f"Loss: {loss.item():.4f} (cls: {loss_dict['loss_cls'].item():.4f}, "
-                      f"bbox: {loss_dict['loss_bbox'].item():.4f}, giou: {loss_dict['loss_giou'].item():.4f})")
+            progress_bar.set_postfix(loss=f'{current_loss:.4f}')
 
         scheduler.step()
 
         avg_loss = epoch_loss / len(loader)
-        print(f"Epoch {epoch+1} finished. Avg Loss: {avg_loss:.4f}\n")
+        progress_bar.set_postfix(avg_loss=f'{avg_loss:.4f}')
+        progress_bar.close()
+
+        print(
+            f"Epoch {epoch+1} finished. Avg Loss: {avg_loss:.4f} | LR: {optimizer.lr:.1e}\n")
         loss_log.append(avg_loss)
 
         model.save(f'model_epoch_{epoch+1}.pkl')
