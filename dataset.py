@@ -1,4 +1,4 @@
-# dataset.py
+# dataset.py (已添加子集功能)
 
 import jittor as jt
 from PIL import Image
@@ -17,7 +17,8 @@ def xyxy_to_cxcywh_and_normalize(boxes, w, h):
 
 
 class COCODataset(jt.dataset.Dataset):
-    def __init__(self, img_dir, ann_file, transforms=None):
+    # ## <<< 关键修改：增加一个新的可选参数 subset_size >>>
+    def __init__(self, img_dir, ann_file, transforms=None, subset_size=None):
         super().__init__()
         self.img_dir = img_dir
         self.transforms = transforms
@@ -40,6 +41,14 @@ class COCODataset(jt.dataset.Dataset):
 
         cat_ids = sorted({a['category_id'] for a in self.annotations})
         self.catid2contiguous = {cat_id: i for i, cat_id in enumerate(cat_ids)}
+
+        # ## <<< 关键修改：如果提供了 subset_size，则对数据集进行切片 >>>
+        if subset_size is not None and subset_size > 0:
+            print("---------------------------------------------------------------")
+            print(f"!!! 警告：数据集已缩减，仅使用前 {subset_size} 张图片进行训练 !!!")
+            print("---------------------------------------------------------------")
+            self.ids = self.ids[:subset_size]
+
 
     def __len__(self):
         return len(self.ids)
