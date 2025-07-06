@@ -5,4 +5,4 @@ python vis.py --weights checkpoints/model_epoch_50.pkl --img_path test.png --con
 
 python train.py --epochs 2 --batch_size 4 --lr 1e-4 
 
-python train.py --subset_size 100
+python train.py --subset_size 40
