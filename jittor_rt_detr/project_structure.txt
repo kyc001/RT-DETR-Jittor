@@ -1,0 +1,38 @@
+RT-DETR-Jittor/
+├── README.md                    # 项目说明文档
+├── requirements.txt             # Python依赖包
+├── setup.py                     # 安装脚本
+├── prepare_data.py              # 数据准备脚本
+├── experiment_log.py            # 实验记录脚本
+├── benchmark.py                 # 性能对比脚本
+├── PROJECT_SUMMARY.md           # 项目总结文档
+├── command                      # 常用命令记录
+├── project_structure.txt        # 项目结构记录
+├── data/                       # 数据目录
+│   └── coco/
+│       ├── annotations/
+│       │   ├── instances_train2017.json
+│       │   └── instances_val2017.json
+│       ├── train2017/
+│       └── val2017/
+├── checkpoints/                # 模型检查点目录
+├── experiments/                # 实验记录目录
+├── benchmark_results/           # 性能对比结果目录
+├── model.py                    # RT-DETR模型实现
+├── dataset.py                  # COCO数据集加载
+├── loss.py                     # DETR损失函数
+├── train.py                    # 训练脚本
+├── test.py                     # 测试脚本
+├── vis.py                      # 可视化脚本
+├── loss_plot.py                # 损失曲线绘制
+├── find_good_image.py          # 查找测试图片
+├── demo.py                     # 演示脚本
+├── .gitignore                  # Git忽略文件
+├── loss_curve.png              # 损失曲线图
+├── loss_curve.npy              # 损失数据
+├── test.png                    # 测试图片
+├── test_image.jpg              # 测试图片
+├── 000000000139.jpg            # COCO数据集图片
+├── 000000435081.jpg            # COCO数据集图片
+├── vis_result.jpg              # 可视化结果
+└── vis_result_no_detection.jpg # 无检测结果图 

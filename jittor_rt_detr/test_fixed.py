@@ -1,44 +1,55 @@
-# test.py (最终修复版 - 使用 jt.topk)
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+RT-DETR 测试脚本 (最终修复版)
+避免Jittor框架兼容性问题
+"""
 
 import jittor as jt
 import jittor.nn as nn
-from jittor import transform as T
 import argparse
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from model import RTDETR
 
+
+def preprocess_image(img_path):
+    """预处理图片"""
+    img = Image.open(img_path).convert('RGB').resize((640, 640))
+    arr = np.array(img).astype(np.float32) / 255.
+    arr = (arr - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]
+    arr = arr.transpose(2, 0, 1)
+    return jt.array(arr).reshape((1, 3, 640, 640))
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="RT-DETR Testing and Visualization")
+        description="RT-DETR Testing (Final Fixed)")
     parser.add_argument('--weights', type=str, required=True,
                         help='Path to model weights')
     parser.add_argument('--img_path', type=str, required=True,
                         help='Path to the image for visualization')
     parser.add_argument('--num_classes', type=int, default=80,
-                        help="Number of object categories, excluding background.")
+                        help="Number of object categories")
     parser.add_argument('--conf_threshold', type=float, default=0.5,
-                        help="Confidence threshold for filtering predictions.")
+                        help="Confidence threshold")
     args = parser.parse_args()
 
     jt.flags.use_cuda = 1
 
+    # 创建模型
     model = RTDETR(num_classes=args.num_classes + 1)
     print(f"Loading weights from {args.weights}...")
     model.load_parameters(jt.load(args.weights))
     model.eval()
 
+    # 预处理图片
     original_img = Image.open(args.img_path).convert('RGB')
     w, h = original_img.size
+    img_tensor = preprocess_image(args.img_path)
 
-    transform = T.Compose([
-        T.Resize((640, 640)),
-        T.ToTensor(),
-        T.ImageNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-    img_tensor = jt.array(transform(original_img)).unsqueeze(0)
-
+    # 推理
     with jt.no_grad():
         outputs_class, outputs_coord = model(img_tensor)
 
@@ -46,38 +57,52 @@ def main():
     pred_boxes = outputs_coord[-1]
     prob = nn.softmax(pred_logits, dim=-1)[0, :, :-1]
 
-    # ## <<< 关键修复：使用 jt.topk(k=1) 代替 .max()，以稳定地获取值和索引 >>>
+    # 获取预测结果
     scores, labels = jt.topk(prob, k=1, dim=-1)
-    # .topk() 返回的张量会多一个维度，需要用 .squeeze() 去掉
     scores = scores.squeeze(-1)
     labels = labels.squeeze(-1)
 
-    # 后续代码现在可以正确工作
+    # 置信度筛选
     keep_mask = scores > args.conf_threshold
-    
-    final_boxes_cxcywh = pred_boxes[0][keep_mask]
-    final_scores = scores[keep_mask]
-    final_labels = labels[keep_mask]
 
-    if final_labels.shape[0] == 0:
+    # 转换为numpy进行后处理
+    scores_np = scores.numpy()
+    labels_np = labels.numpy()
+    boxes_np = pred_boxes[0].numpy()
+    keep_mask_np = keep_mask.numpy()
+
+    keep_indices = np.where(keep_mask_np)[0]
+
+    if len(keep_indices) == 0:
         print(f"检测完成：在此图片中没有发现置信度高于 {args.conf_threshold} 的目标。")
         result_path = "vis_result_no_detection.jpg"
         original_img.save(result_path)
         print(f"已将原图保存至: {result_path}")
         return
 
-    boxes_xyxy = jt.zeros_like(final_boxes_cxcywh)
-    boxes_xyxy[:, 0] = (final_boxes_cxcywh[:, 0] - final_boxes_cxcywh[:, 2] / 2) * w
-    boxes_xyxy[:, 1] = (final_boxes_cxcywh[:, 1] - final_boxes_cxcywh[:, 3] / 2) * h
-    boxes_xyxy[:, 2] = (final_boxes_cxcywh[:, 0] + final_boxes_cxcywh[:, 2] / 2) * w
-    boxes_xyxy[:, 3] = (final_boxes_cxcywh[:, 1] + final_boxes_cxcywh[:, 3] / 2) * h
+    final_boxes_cxcywh = boxes_np[keep_indices]
+    final_scores = scores_np[keep_indices]
+    final_labels = labels_np[keep_indices]
 
+    # 转换为像素坐标
+    boxes_xyxy = np.zeros_like(final_boxes_cxcywh)
+    boxes_xyxy[:, 0] = (final_boxes_cxcywh[:, 0] -
+                        final_boxes_cxcywh[:, 2] / 2) * w
+    boxes_xyxy[:, 1] = (final_boxes_cxcywh[:, 1] -
+                        final_boxes_cxcywh[:, 3] / 2) * h
+    boxes_xyxy[:, 2] = (final_boxes_cxcywh[:, 0] +
+                        final_boxes_cxcywh[:, 2] / 2) * w
+    boxes_xyxy[:, 3] = (final_boxes_cxcywh[:, 1] +
+                        final_boxes_cxcywh[:, 3] / 2) * h
+
+    # 可视化
     draw = ImageDraw.Draw(original_img)
     print(f"检测到 {boxes_xyxy.shape[0]} 个目标，正在进行可视化...")
+
     for i in range(boxes_xyxy.shape[0]):
-        box = boxes_xyxy[i].numpy()
-        label = final_labels[i].item()
-        score = final_scores[i].item()
+        box = boxes_xyxy[i]
+        label = final_labels[i]
+        score = final_scores[i]
 
         draw.rectangle(list(box), outline="red", width=3)
         text = f"Class {label}: {score:.2f}"
