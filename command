@@ -56,3 +56,60 @@ python prepare_data.py --download --extract
 # - test_fixed.py: 最终修复版测试脚本
 # - test_simple.py: 简化版测试脚本
 # - vis.py: 修复版可视化脚本
+
+
+
+
+conda create -n py python=3.10 -y
+conda activate py
+
+pip install -r requirements.txt "numpy<2.0" -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+pip install "numpy<2.0" -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+
+pip install "numpy<2.0" torch==2.0.1 torchvision==0.15.2 onnx==1.14.0 onnxruntime==1.15.1 pycocotools PyYAML scipy transformers autopep8 -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+# 首先确保您已不在任何环境中
+conda deactivate
+
+# 然后彻底删除它 (请将jt替换成您要删除的实际环境名)
+conda remove --name py --all
+
+
+
+which g++ && g++ --version
+conda create -n jt -c conda-forge python=3.7 gcc_linux-64 gxx_linux-64 -y
+conda activate jt 
+# 安装 Jittor
+rm -rf ~/.cache/jittor/
+python -m pip install jittor
+rm -rf /home/kyc/.cache/jittor/cutlass
+python3.7 -m jittor.test.test_example
+python3.7 -m jittor.test.test_cudnn_op
+
+from torchvision import datapoints
+from torchvision import tv_tensors
+
+
+
+python -c "from torchvision import tv_tensors; print(tv_tensors)"
+
+
+conda activate py
+
+
+python -m pip uninstall torch torchvision -y
+rm -rf ~/.cache/pip
+
+python -m pip install torch torchvision --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple 
+
+# 首先，确保您位于正确的项目根目录
+cd ~/project/RT-DETR/pytorch_rt_detr
+python tools/train.py --config configs/rtdetr/rtdetr_r18vd_6x_coco.yml
+python -m tools.train --config configs/rtdetr/rtdetr_r18vd_6x_coco.yml
+
+pip install -r requirements.txt
