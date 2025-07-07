@@ -11,9 +11,9 @@ import argparse
 import math
 from tqdm import tqdm
 
-from model import RTDETR
-from dataset import COCODataset
-from loss import DETRLoss
+from src.nn.model import RTDETR
+from src.data.coco.coco_dataset import COCODataset
+from src.nn.loss import DETRLoss
 
 
 def main():
