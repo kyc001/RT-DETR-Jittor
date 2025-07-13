@@ -119,7 +119,7 @@ class DETRLoss(nn.Module):
 
         return loss_bbox, loss_giou
 
-    def execute(self, all_pred_logits, all_pred_boxes, targets):
+    def execute(self, all_pred_logits, all_pred_boxes, targets, enc_logits=None, enc_boxes=None):
         final_pred_logits = all_pred_logits[-1]
         final_pred_boxes = all_pred_boxes[-1]
         indices = self.hungarian_match(
@@ -132,6 +132,7 @@ class DETRLoss(nn.Module):
         loss_dict = {}
         total_loss = jt.zeros(1)
 
+        # 解码器各层损失
         for i in range(all_pred_logits.shape[0]):
             pred_logits = all_pred_logits[i]
             pred_boxes = all_pred_boxes[i]
@@ -144,6 +145,34 @@ class DETRLoss(nn.Module):
             loss_dict[f'loss_cls{suffix}'] = l_cls
             loss_dict[f'loss_bbox{suffix}'] = l_bbox
             loss_dict[f'loss_giou{suffix}'] = l_giou
+
+        # 编码器辅助损失
+        if enc_logits is not None and enc_boxes is not None:
+            # 对编码器输出进行top-k选择，与解码器查询数量匹配
+            B, N, C = enc_logits.shape
+            scores = enc_logits.max(dim=-1)
+            _, topk_indices = jt.topk(scores, all_pred_logits.shape[1], dim=1)
+
+            # 选择top-k的编码器预测
+            batch_indices = jt.arange(B).unsqueeze(1)
+            enc_topk_logits = enc_logits[batch_indices, topk_indices]
+            enc_topk_boxes = enc_boxes[batch_indices, topk_indices]
+
+            # 计算编码器辅助损失
+            enc_indices = self.hungarian_match(enc_topk_logits, enc_topk_boxes, targets)
+            enc_l_cls = self.loss_labels(enc_topk_logits, targets, enc_indices)
+            enc_l_bbox, enc_l_giou = self.loss_boxes(
+                enc_topk_boxes, targets, enc_indices, num_boxes)
+
+            # 编码器损失权重通常较小
+            enc_loss_weight = 0.1
+            total_loss += enc_loss_weight * (self.lambda_cls * enc_l_cls +
+                                           self.lambda_bbox * enc_l_bbox +
+                                           self.lambda_giou * enc_l_giou)
+
+            loss_dict['loss_cls_enc'] = enc_l_cls
+            loss_dict['loss_bbox_enc'] = enc_l_bbox
+            loss_dict['loss_giou_enc'] = enc_l_giou
 
         loss_dict['total_loss'] = total_loss
         return loss_dict

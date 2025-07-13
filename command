@@ -62,14 +62,6 @@ python prepare_data.py --download --extract
 
 conda create -n py python=3.10 -y
 conda activate py
-
-pip install -r requirements.txt "numpy<2.0" -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-
-pip install "numpy<2.0" -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-
-
 pip install "numpy<2.0" torch==2.0.1 torchvision==0.15.2 onnx==1.14.0 onnxruntime==1.15.1 pycocotools PyYAML scipy transformers autopep8 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 

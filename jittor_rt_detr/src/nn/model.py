@@ -306,8 +306,8 @@ class RTDETR(nn.Module):
         memory = jt.concat(enc_feats_flat, dim=2).transpose(0, 2, 1)
 
         # 5. ## <<< 关键修改：执行 IoU 感知查询选择 >>>
-        # (B, N_all, C) -> (B, N_all, num_classes)
-        enc_logits, _ = self.enc_output_head(memory)
+        # (B, N_all, C) -> (B, N_all, num_classes), (B, N_all, 4)
+        enc_logits, enc_boxes = self.enc_output_head(memory)
 
         # 使用最大分类得分作为选择标准
         # scores: (B, N_all)
@@ -330,4 +330,5 @@ class RTDETR(nn.Module):
         # 7. 对解码器每一层的输出都应用预测头
         logits, boxes = self.dec_output_head(hs)
 
-        return logits, boxes
+        # 8. 返回解码器输出和编码器输出（用于辅助损失）
+        return logits, boxes, enc_logits, enc_boxes
