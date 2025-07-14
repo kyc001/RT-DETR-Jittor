@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 # 添加项目路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'jittor_rt_detr'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'jittor_rt_detr'))
 
 import jittor as jt
 from src.nn.model import RTDETR

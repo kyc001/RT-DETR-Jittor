@@ -150,6 +150,23 @@ class TransformerDecoder(nn.Module):
         return jt.stack(output, dim=0)
 
 
+class MLP(nn.Module):
+    """多层感知机 (参考PyTorch版本)"""
+    def __init__(self, input_dim, hidden_dim, output_dim, num_layers):
+        super().__init__()
+        self.num_layers = num_layers
+        h = [hidden_dim] * (num_layers - 1)
+        layers = []
+        for n, k in zip([input_dim] + h, h + [output_dim]):
+            layers.append(nn.Linear(n, k))
+        self.layers = nn.ModuleList(layers)
+
+    def execute(self, x):
+        for i, layer in enumerate(self.layers):
+            x = jt.nn.relu(layer(x)) if i < self.num_layers - 1 else layer(x)
+        return x
+
+
 class DetectionHead(nn.Module):
     def __init__(self, embed_dim, num_classes):
         super().__init__()
@@ -256,6 +273,9 @@ class RTDETR(nn.Module):
     def __init__(self, num_classes=81, num_queries=300, embed_dim=256, num_heads=8, dec_depth=6):
         super().__init__()
         self.num_queries = num_queries
+        self.num_classes = num_classes
+        self.embed_dim = embed_dim
+        self.eps = 1e-2
 
         # 1. 骨干网络 (Backbone)
         self.backbone = ResNet50()
@@ -274,13 +294,76 @@ class RTDETR(nn.Module):
         # 4. Transformer 解码器 (Decoder)
         self.decoder = TransformerDecoder(embed_dim, num_heads, dec_depth)
 
-        # 5. ## <<< 关键修改：IoU 感知查询选择 >>>
-        # 移除固定的 self.query_embed
-        # 增加一个用于编码器输出的预测头，以选择 Top-K 查询
-        self.enc_output_head = DetectionHead(embed_dim, num_classes)
+        # 5. 编码器输出处理 (参考PyTorch版本)
+        self.enc_output = nn.Sequential(
+            nn.Linear(embed_dim, embed_dim),
+            nn.LayerNorm(embed_dim)
+        )
+        self.enc_score_head = nn.Linear(embed_dim, num_classes)
+        self.enc_bbox_head = MLP(embed_dim, embed_dim, 4, num_layers=3)
 
-        # 6. 解码器各层共享的最终预测头
-        self.dec_output_head = DetectionHead(embed_dim, num_classes)
+        # 6. 解码器各层的预测头 (参考PyTorch版本)
+        self.dec_score_head = nn.ModuleList([
+            nn.Linear(embed_dim, num_classes)
+            for _ in range(dec_depth)
+        ])
+        self.dec_bbox_head = nn.ModuleList([
+            MLP(embed_dim, embed_dim, 4, num_layers=3)
+            for _ in range(dec_depth)
+        ])
+
+        # 7. 查询位置编码头
+        self.query_pos_head = MLP(4, 2 * embed_dim, embed_dim, num_layers=2)
+
+        self._reset_parameters()
+
+    def _reset_parameters(self):
+        """参数初始化 (参考PyTorch版本)"""
+        # 初始化偏置
+        bias_value = -2.19  # bias_init_with_prob(0.01) ≈ -2.19
+
+        # 编码器头初始化
+        jt.init.constant_(self.enc_score_head.bias, bias_value)
+        jt.init.constant_(self.enc_bbox_head.layers[-1].weight, 0)
+        jt.init.constant_(self.enc_bbox_head.layers[-1].bias, 0)
+
+        # 解码器头初始化
+        for cls_head, reg_head in zip(self.dec_score_head, self.dec_bbox_head):
+            jt.init.constant_(cls_head.bias, bias_value)
+            jt.init.constant_(reg_head.layers[-1].weight, 0)
+            jt.init.constant_(reg_head.layers[-1].bias, 0)
+
+    def _generate_anchors(self, spatial_shapes, grid_size=0.05):
+        """生成锚点 (参考PyTorch版本)"""
+        anchors = []
+        for lvl, (h, w) in enumerate(spatial_shapes):
+            # 创建网格
+            grid_y = jt.arange(h, dtype=jt.float32)
+            grid_x = jt.arange(w, dtype=jt.float32)
+            grid_y, grid_x = jt.meshgrid(grid_y, grid_x)
+            grid_xy = jt.stack([grid_x, grid_y], dim=-1)
+
+            # 归一化坐标
+            valid_WH = jt.array([w, h], dtype=jt.float32)
+            grid_xy = (grid_xy.unsqueeze(0) + 0.5) / valid_WH
+
+            # 设置宽高
+            wh = jt.ones_like(grid_xy) * grid_size * (2.0 ** lvl)
+
+            # 组合为锚点 [x, y, w, h]
+            anchor = jt.concat([grid_xy, wh], dim=-1).reshape(-1, h * w, 4)
+            anchors.append(anchor)
+
+        anchors = jt.concat(anchors, dim=1)
+
+        # 创建有效掩码
+        valid_mask = ((anchors > self.eps) * (anchors < 1 - self.eps)).all(dim=-1).unsqueeze(-1)
+
+        # 应用logit变换
+        anchors = jt.log(anchors / (1 - anchors))
+        anchors = jt.where(valid_mask, anchors, float('inf'))
+
+        return anchors, valid_mask
 
     def execute(self, x):
         # ------------------ 编码器部分 ------------------
@@ -305,30 +388,63 @@ class RTDETR(nn.Module):
         # memory: (B, N_all, C)
         memory = jt.concat(enc_feats_flat, dim=2).transpose(0, 2, 1)
 
-        # 5. ## <<< 关键修改：执行 IoU 感知查询选择 >>>
-        # (B, N_all, C) -> (B, N_all, num_classes), (B, N_all, 4)
-        enc_logits, enc_boxes = self.enc_output_head(memory)
+        # 5. 生成锚点 (参考PyTorch版本)
+        spatial_shapes = []
+        for feat in enc_outputs:
+            _, _, H, W = feat.shape
+            spatial_shapes.append((H, W))
 
-        # 使用最大分类得分作为选择标准
-        # scores: (B, N_all)
-        scores = enc_logits.max(dim=-1)
+        anchors, valid_mask = self._generate_anchors(spatial_shapes)
+        B = x.shape[0]
+        anchors = anchors.expand(B, -1, -1)  # (B, N_all, 4)
+        valid_mask = valid_mask.expand(B, -1, -1)  # (B, N_all, 1)
 
-        # 在所有 batch 中，每个 batch 独立选取 top-k
-        # topk_indices: (B, num_queries)
-        _, topk_indices = jt.topk(scores, self.num_queries, dim=1)
+        # 6. 应用有效掩码到memory
+        memory = valid_mask.to(memory.dtype) * memory
 
-        # 从 memory 中根据索引选出 top-k 特征作为查询
-        # query: (B, num_queries, C)
-        batch_indices = jt.arange(x.shape[0]).unsqueeze(1)
-        query = memory[batch_indices, topk_indices]
+        # 7. 编码器输出处理 (参考PyTorch版本)
+        output_memory = self.enc_output(memory)
+        enc_outputs_class = self.enc_score_head(output_memory)
+        enc_outputs_coord_unact = self.enc_bbox_head(output_memory) + anchors
+
+        # 8. Top-K查询选择 (参考PyTorch版本)
+        _, topk_ind = jt.topk(enc_outputs_class.max(dim=-1), self.num_queries, dim=1)
+
+        # 收集top-k的特征和坐标
+        batch_indices = jt.arange(B).unsqueeze(1).expand(-1, self.num_queries)
+        topk_coords = enc_outputs_coord_unact[batch_indices, topk_ind]  # (B, num_queries, 4)
+        topk_memory = output_memory[batch_indices, topk_ind]  # (B, num_queries, C)
+
+        # 编码器的top-k预测
+        enc_topk_logits = enc_outputs_class[batch_indices, topk_ind]  # (B, num_queries, num_classes)
+        enc_topk_bboxes = jt.sigmoid(topk_coords)  # (B, num_queries, 4)
 
         # ------------------ 解码器部分 ------------------
-        # 6. 将选出的查询和 memory 送入解码器
+        # 9. 准备解码器输入
+        # 查询位置编码
+        query_pos = self.query_pos_head(topk_coords)  # (B, num_queries, embed_dim)
+        target = topk_memory + query_pos  # (B, num_queries, embed_dim)
+
+        # 10. 解码器前向传播
         # hs: (depth, B, num_queries, embed_dim)
-        hs = self.decoder(query, memory)
+        hs = self.decoder(target, memory)
 
-        # 7. 对解码器每一层的输出都应用预测头
-        logits, boxes = self.dec_output_head(hs)
+        # 11. 对解码器各层输出进行预测
+        all_pred_logits = []
+        all_pred_boxes = []
 
-        # 8. 返回解码器输出和编码器输出（用于辅助损失）
-        return logits, boxes, enc_logits, enc_boxes
+        for i, hidden_state in enumerate(hs):
+            pred_logits = self.dec_score_head[i](hidden_state)
+            pred_boxes_delta = self.dec_bbox_head[i](hidden_state)
+
+            # 相对于参考点的增量预测
+            pred_boxes = jt.sigmoid(pred_boxes_delta + topk_coords)
+
+            all_pred_logits.append(pred_logits)
+            all_pred_boxes.append(pred_boxes)
+
+        # 12. 堆叠所有层的输出
+        all_pred_logits = jt.stack(all_pred_logits, dim=0)  # (depth, B, num_queries, num_classes)
+        all_pred_boxes = jt.stack(all_pred_boxes, dim=0)    # (depth, B, num_queries, 4)
+
+        return all_pred_logits, all_pred_boxes, enc_topk_logits, enc_topk_bboxes
