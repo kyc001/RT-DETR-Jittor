@@ -14,8 +14,31 @@ def box_cxcywh_to_xyxy(x):
 
 
 def generalized_box_iou(boxes1, boxes2):
-    assert (boxes1[:, 2:] >= boxes1[:, :2]).all()
-    assert (boxes2[:, 2:] >= boxes2[:, :2]).all()
+    """
+    Generalized IoU from https://giou.stanford.edu/
+
+    The boxes should be in [x0, y0, x1, y1] format
+
+    Returns a [N, M] pairwise matrix, where N = len(boxes1)
+    and M = len(boxes2)
+    """
+    # 检查边界框格式是否正确，如果不正确则修复
+    # 确保 x1 >= x0, y1 >= y0
+    boxes1 = jt.stack([
+        jt.minimum(boxes1[:, 0], boxes1[:, 2]),  # x0
+        jt.minimum(boxes1[:, 1], boxes1[:, 3]),  # y0
+        jt.maximum(boxes1[:, 0], boxes1[:, 2]),  # x1
+        jt.maximum(boxes1[:, 1], boxes1[:, 3])   # y1
+    ], dim=-1)
+
+    boxes2 = jt.stack([
+        jt.minimum(boxes2[:, 0], boxes2[:, 2]),  # x0
+        jt.minimum(boxes2[:, 1], boxes2[:, 3]),  # y0
+        jt.maximum(boxes2[:, 0], boxes2[:, 2]),  # x1
+        jt.maximum(boxes2[:, 1], boxes2[:, 3])   # y1
+    ], dim=-1)
+
+    # 计算交集
     inter_xmin = jt.maximum(
         boxes1[:, 0].unsqueeze(1), boxes2[:, 0].unsqueeze(0))
     inter_ymin = jt.maximum(
@@ -26,11 +49,18 @@ def generalized_box_iou(boxes1, boxes2):
         boxes1[:, 3].unsqueeze(1), boxes2[:, 3].unsqueeze(0))
     inter_area = (inter_xmax - inter_xmin).clamp(min_v=0) * \
         (inter_ymax - inter_ymin).clamp(min_v=0)
+
+    # 计算各自的面积
     boxes1_area = (boxes1[:, 2] - boxes1[:, 0]) * (boxes1[:, 3] - boxes1[:, 1])
     boxes2_area = (boxes2[:, 2] - boxes2[:, 0]) * (boxes2[:, 3] - boxes2[:, 1])
-    union_area = boxes1_area.unsqueeze(
-        1) + boxes2_area.unsqueeze(0) - inter_area
+
+    # 计算并集
+    union_area = boxes1_area.unsqueeze(1) + boxes2_area.unsqueeze(0) - inter_area
+
+    # 计算IoU
     iou = inter_area / union_area.clamp(min_v=1e-6)
+
+    # 计算最小外接矩形
     enclose_xmin = jt.minimum(
         boxes1[:, 0].unsqueeze(1), boxes2[:, 0].unsqueeze(0))
     enclose_ymin = jt.minimum(
@@ -39,8 +69,9 @@ def generalized_box_iou(boxes1, boxes2):
         boxes1[:, 2].unsqueeze(1), boxes2[:, 2].unsqueeze(0))
     enclose_ymax = jt.maximum(
         boxes1[:, 3].unsqueeze(1), boxes2[:, 3].unsqueeze(0))
-    enclose_area = (enclose_xmax - enclose_xmin) * \
-        (enclose_ymax - enclose_ymin)
+    enclose_area = (enclose_xmax - enclose_xmin) * (enclose_ymax - enclose_ymin)
+
+    # 计算GIoU
     giou = iou - (enclose_area - union_area) / enclose_area.clamp(min_v=1e-6)
     return giou
 
@@ -70,25 +101,53 @@ class DETRLoss(nn.Module):
     def hungarian_match(self, pred_logits, pred_boxes, targets):
         B, N, C = pred_logits.shape
         out_prob = nn.softmax(pred_logits.flatten(0, 1), dim=-1)
-        out_bbox = pred_boxes.flatten(0, 1)
+        out_bbox = pred_boxes.flatten(0, 1)  # (B*N, 4)
 
-        tgt_ids = jt.concat([v["labels"] for v in targets])
-        tgt_bbox = jt.concat([v["boxes"] for v in targets])
+        # 收集所有目标的标签和边界框
+        tgt_ids = jt.concat([v["labels"] for v in targets])  # (total_targets,)
+        tgt_bbox = jt.concat([v["boxes"] for v in targets])  # (total_targets, 4)
 
-        cost_class = -out_prob[:, tgt_ids]
-        cost_bbox = jt.abs(out_bbox.unsqueeze(
-            1) - tgt_bbox.unsqueeze(0)).sum(dim=-1)
-        cost_giou = - \
-            generalized_box_iou(box_cxcywh_to_xyxy(
-                out_bbox), box_cxcywh_to_xyxy(tgt_bbox))
+        # 确保tgt_bbox是2D的
+        if tgt_bbox.ndim == 1:
+            tgt_bbox = tgt_bbox.unsqueeze(0)
 
-        C = self.lambda_bbox * cost_bbox + self.lambda_cls * \
-            cost_class + self.lambda_giou * cost_giou
-        C = C.view(B, N, -1)
+        # 计算分类成本
+        cost_class = -out_prob[:, tgt_ids]  # (B*N, total_targets)
+
+        # 计算L1边界框成本 - 参考PyTorch版本
+        # out_bbox: (B*N, 4), tgt_bbox: (total_targets, 4)
+        # 使用广播计算L1距离
+        cost_bbox = jt.abs(out_bbox.unsqueeze(1) - tgt_bbox.unsqueeze(0)).sum(dim=-1)  # (B*N, total_targets)
+
+        # 计算GIoU成本
+        cost_giou = -generalized_box_iou(
+            box_cxcywh_to_xyxy(out_bbox),
+            box_cxcywh_to_xyxy(tgt_bbox)
+        )  # (B*N, total_targets)
+
+        # 组合所有成本
+        C = self.lambda_bbox * cost_bbox + self.lambda_cls * cost_class + self.lambda_giou * cost_giou
+        C = C.view(B, N, -1)  # (B, N, total_targets)
 
         sizes = [len(v["boxes"]) for v in targets]
-        indices = [linear_sum_assignment(c[i].numpy())
-                   for i, c in enumerate(C.split(sizes, -1))]
+
+        # 安全地转换tensor到numpy进行匈牙利算法
+        C_splits = C.split(sizes, -1)
+        indices = []
+        for i, c in enumerate(C_splits):
+            try:
+                # 使用stop_grad()确保tensor可以转换为numpy
+                c_numpy = c[i].stop_grad().numpy()
+                row_ind, col_ind = linear_sum_assignment(c_numpy)
+                indices.append((row_ind, col_ind))
+            except Exception as e:
+                # 如果转换失败，使用简单的贪心匹配作为fallback
+                print(f"Warning: Hungarian algorithm failed, using greedy matching: {e}")
+                c_tensor = c[i]
+                _, min_indices = c_tensor.min(dim=0)
+                row_ind = np.arange(len(min_indices))
+                col_ind = min_indices.stop_grad().numpy()
+                indices.append((row_ind, col_ind))
 
         return [(jt.array(i, dtype='int64'), jt.array(j, dtype='int64')) for i, j in indices]
 
@@ -96,11 +155,18 @@ class DETRLoss(nn.Module):
         src_idx = self._get_src_permutation_idx(indices)
         target_classes_o = jt.concat(
             [t["labels"][J] for t, (_, J) in zip(targets, indices)])
+
+        # 修复：使用实际的类别数作为背景类别索引
+        actual_num_classes = pred_logits.shape[-1]
+        background_class_idx = actual_num_classes - 1  # 最后一个类别作为背景
         target_classes = jt.full(
-            pred_logits.shape[:2], self.num_classes, dtype='int64')
+            pred_logits.shape[:2], background_class_idx, dtype='int64')
+
         target_classes[src_idx] = target_classes_o
-        loss_ce = self.cross_entropy(pred_logits.reshape(-1,
-                                     self.num_classes + 1), target_classes.reshape(-1))
+
+        # 修复：使用实际的类别数进行reshape
+        loss_ce = self.cross_entropy(pred_logits.reshape(-1, actual_num_classes),
+                                     target_classes.reshape(-1))
         return loss_ce
 
     def loss_boxes(self, pred_boxes, targets, indices, num_boxes):

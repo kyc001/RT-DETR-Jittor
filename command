@@ -105,3 +105,15 @@ python tools/train.py --config configs/rtdetr/rtdetr_r18vd_6x_coco.yml
 python -m tools.train --config configs/rtdetr/rtdetr_r18vd_6x_coco.yml
 
 pip install -r requirements.txt
+
+现在我们关心jittor版模型运行以及推理情况，环境已经配置好了，conda activate jt即可激活
+如你所见，思路是利用单张图片进行小规模训练，将得到的模型进行推理，验证训练逻辑，模型逻辑正确性。
+single_bear_training中使用一张熊的照片完成了单目标检测，接下来要完成multi_target_training完成多目标检测，检测对象为人和滑雪板，请你帮我完善multi_target_training代码
+
+主要的问题有：无法正确识别两种物体，只能同时识别出一种，同一物体多次计数，物体边界框没有正确框住。
+
+你可以重新训练，但是为了节省效率，每次训练的epoches都不能超过30
+
+评估模型推理结果的正确性你可以与原始标注的数据进行对照，找出问题
+
+一张图片做多目标检测训练，目的是快速验证“模型结构、训练流程、推理流程”是否通畅、无bug，而不是追求检测精度或泛化能力。也就是说，这其实是一个“流程自检”或“最小可行性验证（sanity check）”，只要模型能学会这张图片上的目标，推理时能正确检测出所有标注物体，流程就算没问题
