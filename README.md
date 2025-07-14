@@ -4,7 +4,32 @@
 
 ![Jittor Logo](https://raw.githubusercontent.com/Jittor/jittor/master/assets/logo.png)
 
-## 📋 目录
+## � 快速开始
+
+### 小规模训练 (推荐，适合4060显卡)
+```bash
+# 使用现有的50张图片进行训练
+python small_scale_training.py
+```
+
+### 流程自检 (验证实现正确性)
+```bash
+# 运行最新的正确配置版本
+python experiments/sanity_check/correct_sanity_check.py
+
+# 分析检测位置精度
+python experiments/inference/position_analysis.py
+```
+
+### 大规模训练
+```bash
+# 使用完整数据集训练 (需要更强显卡)
+python train.py
+```
+
+**项目结构说明**: 详见 [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+
+## �📋 目录
 - [项目特性](#1-项目特性)
 - [环境配置](#2-环境配置)
 - [数据准备](#3-数据准备)
