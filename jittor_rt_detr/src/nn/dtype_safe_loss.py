@@ -1,6 +1,6 @@
 """
 数据类型安全的RT-DETR损失函数
-使用numpy进行底层数据类型控制，彻底解决float32/float64混合问题
+完全独立实现，不修改原始源码，彻底解决float32/float64混合问题
 """
 
 import jittor as jt
@@ -219,7 +219,8 @@ class DTypeSafeSetCriterion(nn.Module):
         
         # 使用focal loss
         target_classes_onehot = jt.zeros([src_logits.shape[0], src_logits.shape[1], src_logits.shape[2] + 1], dtype=src_logits.dtype)
-        target_classes_onehot.scatter_(-1, target_classes.unsqueeze(-1), 1)
+        ones_tensor = jt.ones_like(target_classes.unsqueeze(-1)).float32()
+        target_classes_onehot.scatter_(-1, target_classes.unsqueeze(-1), ones_tensor)
         target_classes_onehot = target_classes_onehot[:, :, :-1]
         
         loss_ce = self.sigmoid_focal_loss(src_logits, target_classes_onehot, num_boxes, alpha=0.25, gamma=2) * src_logits.shape[1]

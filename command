@@ -126,3 +126,15 @@ pip install -r requirements.txt
 在项目成功后，进行一次完整的训练，请将环境配置、数据准备脚本、训练脚本、测试脚本、与 PyTorch 实现对齐的实验 Log、性能 Log 都放在 README 中。如果计算资源有限，用少量数据的训练效果和 PyTorch 版本的结果对齐。请将训练过程 Log、Loss 曲线，结果、可视化等对齐情况进行记录。
 
 
+可以参考官方文档https://cg.cs.tsinghua.edu.cn/jittor/assets/docs/
+
+The `Parameter` interface isn't needed in Jittor, this interface
+does nothings and it is just used for compatible.
+    
+A Jittor Var is a Parameter
+when it is a member of Module, if you don't want a Jittor
+Var menber is treated as a Parameter, just name it startswith
+underscore `_`.
+
+
+注意到在可视化结果中，结果集中为person，且都分布在图片正中心，怀疑模型未成功学习到特征，检查一下标注数据中的坐标转换是否正确？

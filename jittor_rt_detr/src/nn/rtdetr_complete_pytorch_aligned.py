@@ -168,23 +168,26 @@ class RTDETRComplete(nn.Module):
         # 骨干网络特征提取
         features = self.backbone(x)  # [feat1, feat2, feat3]
         
-        # 特征投影和展平
+        # 特征投影和展平 - 确保所有特征都是float32
         proj_features = []
         for i, feat in enumerate(features):
-            proj_feat = self.input_proj[i](feat)  # [bs, hidden_dim, h, w]
+            feat = feat.float32()  # 强制输入为float32
+            proj_feat = self.input_proj[i](feat).float32()  # [bs, hidden_dim, h, w]
             bs, c, h, w = proj_feat.shape
             proj_feat = proj_feat.flatten(2).transpose(1, 2)  # [bs, h*w, hidden_dim]
             proj_features.append(proj_feat)
-        
+
         # 拼接所有层级的特征
-        src = jt.concat(proj_features, dim=1)  # [bs, total_pixels, hidden_dim]
+        src = jt.concat(proj_features, dim=1).float32()  # [bs, total_pixels, hidden_dim]
         
-        # 解码器
-        decoder_output = self.decoder(src)  # [bs, num_queries, hidden_dim]
+        # 解码器 - 确保输入和输出都是float32
+        src = src.float32()
+        decoder_output = self.decoder(src).float32()  # [bs, num_queries, hidden_dim]
         
-        # 预测 - 强制float32输出
-        pred_logits = self.class_head(decoder_output).float32()
-        pred_boxes = jt.sigmoid(self.bbox_head(decoder_output)).float32()
+        # 预测 - 强制float32输出，确保输入也是float32
+        decoder_output_f32 = decoder_output.float32()
+        pred_logits = self.class_head(decoder_output_f32).float32()
+        pred_boxes = jt.sigmoid(self.bbox_head(decoder_output_f32)).float32()
 
         # 构建输出
         outputs = {
@@ -196,8 +199,8 @@ class RTDETRComplete(nn.Module):
         if self.training:
             aux_outputs = []
             for i, (cls_head, bbox_head) in enumerate(zip(self.aux_class_heads, self.aux_bbox_heads)):
-                aux_logits = cls_head(decoder_output).float32()
-                aux_boxes = jt.sigmoid(bbox_head(decoder_output)).float32()
+                aux_logits = cls_head(decoder_output_f32).float32()
+                aux_boxes = jt.sigmoid(bbox_head(decoder_output_f32)).float32()
                 aux_outputs.append({
                     'pred_logits': aux_logits,
                     'pred_boxes': aux_boxes

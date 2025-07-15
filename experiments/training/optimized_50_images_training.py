@@ -303,9 +303,10 @@ def main():
         model = build_rtdetr_complete(num_classes=num_classes, hidden_dim=256, num_queries=300)
         print("✅ 模型创建成功")
         
-        # 5. 创建数据类型安全的损失函数
-        criterion = build_dtype_safe_criterion(num_classes)
-        print("✅ 数据类型安全损失函数创建成功")
+        # 5. 创建原始损失函数（已修复数据类型问题）
+        from jittor_rt_detr.src.nn.loss_pytorch_aligned import build_criterion
+        criterion = build_criterion(num_classes)
+        print("✅ 修复后的损失函数创建成功")
         
         # 6. 开始训练
         model, training_history = optimized_training(
