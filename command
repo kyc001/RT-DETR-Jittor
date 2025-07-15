@@ -140,4 +140,16 @@ underscore `_`.
 注意到在可视化结果中，结果集中为person，且都分布在图片正中心，怀疑模型未成功学习到特征，检查一下标注数据中的坐标转换是否正确？
 
 
-优化的是梯度传播问题
+需要优化的是梯度传播问题
+
+
+再次全面检查一遍代码功能，并将结构，文件名对齐，进一步修复，如果遇到问题可以参考https://cg.cs.tsinghua.edu.cn/jittor/assets/docs/index.html和from jittor.utils.pytorch_converter import convert 转换函数
+
+
+
+w 0715 22:23:08.508958 08 grad.cc:81] grads[0] '' doesn't have gradient. It will be set to zero: Var(50:1:1:1:i1:o0:s0:n0:g1,float32,,0)[2,3,]
+
+
+from jittor_rt_detr.src.nn.backbone.resnet import ResNet50
+from jittor_rt_detr.src.zoo.rtdetr.rtdetr_decoder import RTDETRTransformer
+from jittor_rt_detr.src.nn.criterion.rtdetr_criterion import build_criterion

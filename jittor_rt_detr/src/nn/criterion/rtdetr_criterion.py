@@ -110,14 +110,21 @@ class HungarianMatcher(nn.Module):
             tgt_ids = ensure_int64(jt.concat([ensure_int64(v["labels"]) for v in targets]))
             tgt_bbox = ensure_float32(jt.concat([ensure_float32(v["boxes"]) for v in targets]))
 
-            # 计算分类成本
+            # 计算分类成本 - 修复混合精度问题
             if self.use_focal:
-                # Focal loss成本
-                alpha = 0.25
-                gamma = 2.0
-                neg_cost_class = (1 - alpha) * (out_prob ** gamma) * (-(1 - out_prob + 1e-8).log())
-                pos_cost_class = alpha * ((1 - out_prob) ** gamma) * (-(out_prob + 1e-8).log())
+                # Focal loss成本 - 强制float32
+                alpha = jt.array(0.25, dtype=jt.float32)
+                gamma = jt.array(2.0, dtype=jt.float32)
+                eps = jt.array(1e-8, dtype=jt.float32)
+
+                neg_cost_class = (1 - alpha) * (out_prob ** gamma) * (-(1 - out_prob + eps).log())
+                neg_cost_class = ensure_float32(neg_cost_class)
+
+                pos_cost_class = alpha * ((1 - out_prob) ** gamma) * (-(out_prob + eps).log())
+                pos_cost_class = ensure_float32(pos_cost_class)
+
                 cost_class = pos_cost_class[:, tgt_ids] - neg_cost_class[:, tgt_ids]
+                cost_class = ensure_float32(cost_class)
             else:
                 # 标准分类成本
                 cost_class = -out_prob[:, tgt_ids]
@@ -202,9 +209,9 @@ class SetCriterion(nn.Module):
         self.gamma = gamma
 
     def loss_labels_focal(self, outputs, targets, indices, num_boxes, log=True):
-        """Focal loss for labels"""
+        """Focal loss for labels - 修复混合精度问题"""
         assert 'pred_logits' in outputs
-        src_logits = outputs['pred_logits']
+        src_logits = ensure_float32(outputs['pred_logits'])
 
         idx = self._get_src_permutation_idx(indices)
         target_classes_o = jt.concat([t["labels"][J] for t, (_, J) in zip(targets, indices)])
@@ -212,19 +219,39 @@ class SetCriterion(nn.Module):
         target_classes[idx] = target_classes_o
 
         target = jt.nn.one_hot(target_classes, num_classes=self.num_classes + 1)[..., :-1]
-        
-        # Sigmoid focal loss (手动实现)
-        sigmoid_p = jt.sigmoid(src_logits)
-        ce_loss = -(target.float() * jt.log(sigmoid_p + 1e-8) + (1 - target.float()) * jt.log(1 - sigmoid_p + 1e-8))
-        p_t = sigmoid_p * target + (1 - sigmoid_p) * (1 - target)
-        loss = ce_loss * ((1 - p_t) ** self.gamma)
-        
-        if self.alpha >= 0:
-            alpha_t = self.alpha * target + (1 - self.alpha) * (1 - target)
-            loss = alpha_t * loss
+        target = ensure_float32(target)  # 确保target是float32
 
-        loss = loss.mean(1).sum() * src_logits.shape[1] / num_boxes
-        return {'loss_focal': loss}
+        # Sigmoid focal loss (手动实现) - 强制float32
+        sigmoid_p = ensure_float32(jt.sigmoid(src_logits))
+
+        # 确保所有常数都是float32
+        eps = jt.array(1e-8, dtype=jt.float32)
+        gamma = jt.array(self.gamma, dtype=jt.float32)
+        alpha = jt.array(self.alpha, dtype=jt.float32)
+
+        ce_loss = -(target * jt.log(sigmoid_p + eps) + (1 - target) * jt.log(1 - sigmoid_p + eps))
+        ce_loss = ensure_float32(ce_loss)
+
+        p_t = sigmoid_p * target + (1 - sigmoid_p) * (1 - target)
+        p_t = ensure_float32(p_t)
+
+        loss = ce_loss * ((1 - p_t) ** gamma)
+        loss = ensure_float32(loss)
+
+        if self.alpha >= 0:
+            alpha_t = alpha * target + (1 - alpha) * (1 - target)
+            alpha_t = ensure_float32(alpha_t)
+            loss = alpha_t * loss
+            loss = ensure_float32(loss)
+
+        # 确保最终计算都是float32
+        loss_mean = ensure_float32(loss.mean(1))
+        loss_sum = ensure_float32(loss_mean.sum())
+        num_boxes_f32 = jt.array(num_boxes, dtype=jt.float32)
+        shape_factor = jt.array(src_logits.shape[1], dtype=jt.float32)
+
+        final_loss = ensure_float32(loss_sum * shape_factor / num_boxes_f32)
+        return {'loss_focal': final_loss}
 
     def loss_boxes(self, outputs, targets, indices, num_boxes):
         """计算边界框损失"""

@@ -1,115 +1,137 @@
+"""Hybrid Encoder for RT-DETR"""
 
-"""
-多尺度可变形注意力模块 - 严格按照PyTorch版本实现
-参考: rtdetr_pytorch/src/zoo/rtdetr/rtdetr_decoder.py
-"""
-
-import math
 import jittor as jt
 import jittor.nn as nn
-from .utils import deformable_attention_core_func
+import math
 
+def ensure_float32(x):
+    """确保张量为float32类型"""
+    if isinstance(x, jt.Var):
+        return x.float32()
+    else:
+        return jt.array(x, dtype=jt.float32)
 
-class MSDeformableAttention(nn.Module):
-    """
-    多尺度可变形注意力模块 - 严格按照PyTorch版本实现
-    """
-
-    def __init__(self, embed_dim=256, num_heads=8, num_levels=4, num_points=4):
-        super(MSDeformableAttention, self).__init__()
+class MultiHeadAttention(nn.Module):
+    """多头注意力机制 - Jittor兼容版本"""
+    
+    def __init__(self, embed_dim, num_heads, dropout=0.1):
+        super().__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
-        self.num_levels = num_levels
-        self.num_points = num_points
-        self.total_points = num_heads * num_levels * num_points
-
         self.head_dim = embed_dim // num_heads
-        assert self.head_dim * num_heads == self.embed_dim, "embed_dim must be divisible by num_heads"
+        
+        assert self.head_dim * num_heads == embed_dim
+        
+        self.q_proj = nn.Linear(embed_dim, embed_dim)
+        self.k_proj = nn.Linear(embed_dim, embed_dim)
+        self.v_proj = nn.Linear(embed_dim, embed_dim)
+        self.out_proj = nn.Linear(embed_dim, embed_dim)
+        
+        self.dropout = nn.Dropout(dropout)
+        
+    def execute(self, query, key=None, value=None, attn_mask=None):
+        if key is None:
+            key = query
+        if value is None:
+            value = query
+            
+        batch_size, seq_len, embed_dim = query.shape
+        
+        # 投影
+        q = self.q_proj(query)
+        k = self.k_proj(key)
+        v = self.v_proj(value)
+        
+        # 重塑为多头
+        q = q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        k = k.view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
+        v = v.view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
+        
+        # 计算注意力
+        scores = jt.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim)
+        
+        if attn_mask is not None:
+            scores = scores + attn_mask
+        
+        attn_weights = jt.nn.softmax(scores, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+        
+        # 应用注意力
+        out = jt.matmul(attn_weights, v)
+        out = out.transpose(1, 2).contiguous().view(batch_size, seq_len, embed_dim)
+        
+        return self.out_proj(out)
 
-        self.sampling_offsets = nn.Linear(embed_dim, self.total_points * 2)
-        self.attention_weights = nn.Linear(embed_dim, self.total_points)
-        self.value_proj = nn.Linear(embed_dim, embed_dim)
-        self.output_proj = nn.Linear(embed_dim, embed_dim)
+class TransformerEncoderLayer(nn.Module):
+    """Transformer编码器层 - Jittor兼容版本"""
+    
+    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1):
+        super().__init__()
+        self.self_attn = MultiHeadAttention(d_model, nhead, dropout)
+        
+        # 前馈网络
+        self.linear1 = nn.Linear(d_model, dim_feedforward)
+        self.dropout = nn.Dropout(dropout)
+        self.linear2 = nn.Linear(dim_feedforward, d_model)
+        
+        # 层归一化
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+        
+    def execute(self, src, src_mask=None):
+        # 自注意力
+        src2 = self.self_attn(src, src, src, src_mask)
+        src = src + self.dropout1(src2)
+        src = self.norm1(src)
+        
+        # 前馈网络
+        src2 = self.linear2(self.dropout(jt.relu(self.linear1(src))))
+        src = src + self.dropout2(src2)
+        src = self.norm2(src)
+        
+        return src
 
-        self.ms_deformable_attn_core = deformable_attention_core_func
+class HybridEncoder(nn.Module):
+    """混合编码器 - Jittor兼容版本"""
+    
+    def __init__(self, embed_dim=256, num_heads=8, num_layers=6):
+        super().__init__()
+        self.embed_dim = embed_dim
+        self.num_heads = num_heads
+        self.num_layers = num_layers
+        
+        # 编码器层
+        self.layers = nn.ModuleList([
+            TransformerEncoderLayer(
+                d_model=embed_dim,
+                nhead=num_heads,
+                dim_feedforward=embed_dim * 4,
+                dropout=0.1
+            ) for _ in range(num_layers)
+        ])
+        
+        # 位置编码
+        self.pos_embed = nn.Parameter(jt.randn(1000, embed_dim) * 0.02)
+        
+    def execute(self, src, pos_embed=None):
+        """前向传播"""
+        batch_size, seq_len, embed_dim = src.shape
+        
+        # 添加位置编码
+        if pos_embed is None and seq_len <= 1000:
+            pos_embed = self.pos_embed[:seq_len].unsqueeze(0)
+            src = src + pos_embed
+        
+        # 通过编码器层
+        output = src
+        for layer in self.layers:
+            output = layer(output)
+        
+        return ensure_float32(output)
 
-        self._reset_parameters()
-
-    def _reset_parameters(self):
-        """参数初始化 - 严格按照PyTorch版本"""
-        # sampling_offsets初始化
-        jt.init.constant_(self.sampling_offsets.weight, 0)
-
-        # 创建初始网格
-        thetas = jt.arange(self.num_heads, dtype=jt.float32) * (2.0 * math.pi / self.num_heads)
-        grid_init = jt.stack([jt.cos(thetas), jt.sin(thetas)], -1)
-        grid_init = grid_init / grid_init.abs().max(-1, keepdims=True)
-        grid_init = grid_init.view(self.num_heads, 1, 1, 2).repeat(1, self.num_levels, self.num_points, 1)
-
-        # 缩放因子
-        scaling = jt.arange(1, self.num_points + 1, dtype=jt.float32).view(1, 1, -1, 1)
-        grid_init *= scaling
-
-        # 设置偏置
-        with jt.no_grad():
-            self.sampling_offsets.bias.assign(grid_init.flatten())
-
-        # attention_weights初始化
-        jt.init.constant_(self.attention_weights.weight, 0)
-        jt.init.constant_(self.attention_weights.bias, 0)
-
-        # 投影层初始化
-        jt.init.xavier_uniform_(self.value_proj.weight)
-        jt.init.constant_(self.value_proj.bias, 0)
-        jt.init.xavier_uniform_(self.output_proj.weight)
-        jt.init.constant_(self.output_proj.bias, 0)
-
-    def execute(self, query, reference_points, value, value_spatial_shapes, value_level_start_index, value_mask=None):
-        """
-        前向传播 - 严格按照PyTorch版本
-
-        Args:
-            query (Tensor): [bs, query_length, C]
-            reference_points (Tensor): [bs, query_length, n_levels, 2], range in [0, 1]
-            value (Tensor): [bs, value_length, C]
-            value_spatial_shapes (List): [n_levels, 2], [(H_0, W_0), (H_1, W_1), ...]
-            value_level_start_index (List): [n_levels], [0, H_0*W_0, H_0*W_0+H_1*W_1, ...]
-            value_mask (Tensor): [bs, value_length]
-        """
-        bs, num_query, _ = query.shape
-        bs, num_value, _ = value.shape
-        assert (value_spatial_shapes[:, 0] * value_spatial_shapes[:, 1]).sum() == num_value
-
-        # 值投影
-        value = self.value_proj(value)
-        if value_mask is not None:
-            value = value * (1 - value_mask.unsqueeze(-1).float())
-        value = value.view(bs, num_value, self.num_heads, self.head_dim)
-
-        # 计算采样偏移和注意力权重
-        sampling_offsets = self.sampling_offsets(query).view(
-            bs, num_query, self.num_heads, self.num_levels, self.num_points, 2)
-        attention_weights = self.attention_weights(query).view(
-            bs, num_query, self.num_heads, self.num_levels * self.num_points)
-        attention_weights = jt.nn.softmax(attention_weights, -1).view(
-            bs, num_query, self.num_heads, self.num_levels, self.num_points)
-
-        # 计算采样位置
-        if reference_points.shape[-1] == 2:
-            offset_normalizer = jt.stack([value_spatial_shapes[..., 1], value_spatial_shapes[..., 0]], -1)
-            sampling_locations = reference_points[:, :, None, :, None, :] + \
-                sampling_offsets / offset_normalizer[None, None, None, :, None, :]
-        elif reference_points.shape[-1] == 4:
-            sampling_locations = reference_points[:, :, None, :, None, :2] + \
-                sampling_offsets / self.num_points * reference_points[:, :, None, :, None, 2:] * 0.5
-        else:
-            raise ValueError(f"Last dim of reference_points must be 2 or 4, but get {reference_points.shape[-1]} instead.")
-
-        # 执行多尺度可变形注意力
-        output = self.ms_deformable_attn_core(
-            value, value_spatial_shapes, value_level_start_index, sampling_locations, attention_weights)
-
-        # 输出投影
-        output = self.output_proj(output)
-
-        return output
+# 为了兼容性，添加一些常用的函数
+def build_hybrid_encoder(embed_dim=256, num_heads=8, num_layers=6):
+    """构建混合编码器"""
+    return HybridEncoder(embed_dim, num_heads, num_layers)

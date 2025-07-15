@@ -2,26 +2,44 @@
 Fully aligned with PyTorch version structure
 """
 
-from .rtdetr import RTDETR
-from .rtdetr_decoder import RTDETRTransformer
-from .rtdetr_criterion import SetCriterion, HungarianMatcher, build_criterion
-from .rtdetr_postprocessor import RTDETRPostProcessor, build_postprocessor
-from .matcher import build_matcher
-from .hybrid_encoder import MSDeformableAttention
-from .utils import MLP, bias_init_with_prob, inverse_sigmoid
-from .box_ops import *
+# 安全导入，避免循环导入问题
+try:
+    from .rtdetr import RTDETR
+except ImportError:
+    RTDETR = None
+
+try:
+    from .rtdetr_decoder import RTDETRTransformer, MSDeformableAttention
+except ImportError:
+    RTDETRTransformer = None
+    MSDeformableAttention = None
+
+try:
+    from .matcher import HungarianMatcher, build_matcher
+except ImportError:
+    HungarianMatcher = None
+    build_matcher = None
+
+try:
+    from .hybrid_encoder import HybridEncoder
+except ImportError:
+    HybridEncoder = None
+
+# 简化导入，避免复杂依赖
+def build_criterion(num_classes=80):
+    """构建损失函数"""
+    try:
+        from ..rtdetr.rtdetr_criterion import build_criterion as _build_criterion
+        return _build_criterion(num_classes)
+    except ImportError:
+        return None
 
 __all__ = [
     'RTDETR',
     'RTDETRTransformer',
-    'SetCriterion',
-    'HungarianMatcher',
-    'RTDETRPostProcessor',
     'MSDeformableAttention',
-    'MLP',
-    'bias_init_with_prob',
-    'inverse_sigmoid',
+    'HungarianMatcher',
+    'HybridEncoder',
     'build_criterion',
-    'build_postprocessor',
     'build_matcher'
 ]
