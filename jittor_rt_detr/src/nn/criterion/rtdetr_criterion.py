@@ -8,6 +8,22 @@ import jittor.nn as nn
 from scipy.optimize import linear_sum_assignment
 import numpy as np
 
+def ensure_float32(x):
+    """确保张量为float32类型"""
+    if isinstance(x, jt.Var):
+        return x.float32()
+    elif isinstance(x, (list, tuple)):
+        return [ensure_float32(item) for item in x]
+    else:
+        return x
+
+def ensure_int64(x):
+    """确保张量为int64类型"""
+    if isinstance(x, jt.Var):
+        return x.int64()
+    else:
+        return x
+
 
 def box_cxcywh_to_xyxy(x):
     """将中心点格式转换为左上右下格式"""
@@ -80,16 +96,19 @@ class HungarianMatcher(nn.Module):
             bs, num_queries = outputs["pred_logits"].shape[:2]
 
             # 展平以计算成本矩阵 - 确保数据类型一致
-            if self.use_focal:
-                out_prob = jt.sigmoid(outputs["pred_logits"].flatten(0, 1).float32())  # [batch_size * num_queries, num_classes]
-            else:
-                out_prob = outputs["pred_logits"].flatten(0, 1).float32().softmax(-1)  # [batch_size * num_queries, num_classes]
+            pred_logits = ensure_float32(outputs["pred_logits"])
+            pred_boxes = ensure_float32(outputs["pred_boxes"])
 
-            out_bbox = outputs["pred_boxes"].flatten(0, 1).float32()  # [batch_size * num_queries, 4]
+            if self.use_focal:
+                out_prob = ensure_float32(jt.sigmoid(pred_logits.flatten(0, 1)))
+            else:
+                out_prob = ensure_float32(pred_logits.flatten(0, 1).softmax(-1))
+
+            out_bbox = ensure_float32(pred_boxes.flatten(0, 1))
 
             # 收集目标标签和边界框 - 强制数据类型一致
-            tgt_ids = jt.concat([v["labels"] for v in targets]).int64()
-            tgt_bbox = jt.concat([v["boxes"] for v in targets]).float32()
+            tgt_ids = ensure_int64(jt.concat([ensure_int64(v["labels"]) for v in targets]))
+            tgt_bbox = ensure_float32(jt.concat([ensure_float32(v["boxes"]) for v in targets]))
 
             # 计算分类成本
             if self.use_focal:

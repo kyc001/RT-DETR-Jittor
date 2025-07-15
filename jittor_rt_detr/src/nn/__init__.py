@@ -1,4 +1,4 @@
-from .model import RTDETR
-from .loss import DETRLoss
+from .backbone import *
+from .criterion import *
 
-__all__ = ['RTDETR', 'DETRLoss']
+__all__ = []

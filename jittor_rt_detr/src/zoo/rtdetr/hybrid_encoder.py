@@ -7,7 +7,7 @@
 import math
 import jittor as jt
 import jittor.nn as nn
-from .utils_pytorch_aligned import deformable_attention_core_func
+from .utils import deformable_attention_core_func
 
 
 class MSDeformableAttention(nn.Module):
