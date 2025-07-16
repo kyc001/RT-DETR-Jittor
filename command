@@ -153,3 +153,9 @@ w 0715 22:23:08.508958 08 grad.cc:81] grads[0] '' doesn't have gradient. It will
 from jittor_rt_detr.src.nn.backbone.resnet import ResNet50
 from jittor_rt_detr.src.zoo.rtdetr.rtdetr_decoder import RTDETRTransformer
 from jittor_rt_detr.src.nn.criterion.rtdetr_criterion import build_criterion
+
+
+对这张照片进行100次过拟合训练，/home/kyc/project/RT-DETR/data/coco2017_50/train2017/000000282037.jpg并用训练好的模型对这张照片进行推理，训练后的模型能够成功识别物体个数并正确检测出物体的边界框，可以通过与数据原始标注进行对比实现。否则需要不断重复自检的过程检查错误，无法正确检测物体的模型直接删除，在检查的过程中始终维护核心代码，不要重复创建新脚本
+
+
+000000282037.jpg

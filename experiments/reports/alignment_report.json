@@ -1,0 +1,27 @@
+{
+  "project_structure": {
+    "pytorch_files": 19,
+    "jittor_files": 19,
+    "missing_files": 6,
+    "missing_list": [
+      "src/nn/backbone/presnet.py",
+      "src/nn/backbone/common.py",
+      "src/data/coco_dataset.py",
+      "configs/rtdetr/rtdetr_r50vd_6x_coco.yml",
+      "configs/rtdetr/rtdetr_r18vd_6x_coco.yml",
+      "tools/eval.py"
+    ]
+  },
+  "import_consistency": {
+    "success_rate": "11/11",
+    "failed_imports": []
+  },
+  "jittor_compatibility": {
+    "converter_available": true,
+    "api_success_rate": "14/14"
+  },
+  "model_functionality": {
+    "model_works": true,
+    "dtype_consistent": true
+  }
+}
