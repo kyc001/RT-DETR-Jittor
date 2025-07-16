@@ -1,0 +1,2851 @@
+[
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 4
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 9
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 14
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 19
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 24
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 29
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 34
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 39
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 44
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 49
+  },
+  {
+    "total_detections": 0,
+    "avg_confidence": 0.0,
+    "class_diversity": 0,
+    "detected_classes": [],
+    "per_image_results": [
+      {
+        "image_id": 369771,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 550691,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 178982,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 15597,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 359855,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 51938,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 64718,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 72813,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 453860,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 445792,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 284445,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384808,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 417285,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 29187,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 182202,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384661,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 436617,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 348881,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 356432,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 180188,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 424521,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 146489,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 446206,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 384527,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 280918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 7991,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 369503,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 9769,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 383921,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 269682,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 46048,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 414510,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 463918,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 408696,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 499266,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 305609,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 223959,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 306437,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 176037,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 452784,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 139871,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 477955,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 426795,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 209972,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 106330,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 49761,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 163611,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 88250,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 221213,
+        "detections": 0,
+        "avg_confidence": 0
+      },
+      {
+        "image_id": 535156,
+        "detections": 0,
+        "avg_confidence": 0
+      }
+    ],
+    "epoch": 49
+  }
+]

@@ -1,0 +1,1089 @@
+{
+  "total_images": 20,
+  "successful_inferences": 20,
+  "total_detections": 67,
+  "detection_stats": {
+    "dining table": 20,
+    "train": 20,
+    "person": 20,
+    "chair": 6,
+    "keyboard": 1
+  },
+  "confidence_scores": [
+    0.17094369232654572,
+    0.1425980180501938,
+    0.13064031302928925,
+    0.18220771849155426,
+    0.14136217534542084,
+    0.12974245846271515,
+    0.10144801437854767,
+    0.18496859073638916,
+    0.1414111703634262,
+    0.12952382862567902,
+    0.1023029312491417,
+    0.1855878233909607,
+    0.14202959835529327,
+    0.13137564063072205,
+    0.1792481392621994,
+    0.13908344507217407,
+    0.1352495700120926,
+    0.17933115363121033,
+    0.13505281507968903,
+    0.13201889395713806,
+    0.16766750812530518,
+    0.14528751373291016,
+    0.13655321300029755,
+    0.10057171434164047,
+    0.18799763917922974,
+    0.14138944447040558,
+    0.13254354894161224,
+    0.17750896513462067,
+    0.1398421823978424,
+    0.1364821195602417,
+    0.1812015324831009,
+    0.13724489510059357,
+    0.13073404133319855,
+    0.1812111884355545,
+    0.14233894646167755,
+    0.1387721449136734,
+    0.10070604085922241,
+    0.1815846860408783,
+    0.13932546973228455,
+    0.13442812860012054,
+    0.17985676229000092,
+    0.13679161667823792,
+    0.12796182930469513,
+    0.16636444628238678,
+    0.13628332316875458,
+    0.1330171823501587,
+    0.18361443281173706,
+    0.14082610607147217,
+    0.13002344965934753,
+    0.10055340081453323,
+    0.18312309682369232,
+    0.13757091760635376,
+    0.13376371562480927,
+    0.18713568150997162,
+    0.13024240732192993,
+    0.12938162684440613,
+    0.18046371638774872,
+    0.13866619765758514,
+    0.1328105926513672,
+    0.10051477700471878,
+    0.17949137091636658,
+    0.13509736955165863,
+    0.1336735337972641,
+    0.18261349201202393,
+    0.13989384472370148,
+    0.13386858999729156,
+    0.10059396177530289
+  ],
+  "processing_times": [
+    0.966112,
+    0.040198,
+    0.043716,
+    0.043879,
+    0.042103,
+    0.038932,
+    0.040047,
+    0.046447,
+    0.043968,
+    0.046418,
+    0.045854,
+    0.045619,
+    0.044979,
+    0.069662,
+    0.046197,
+    0.041984,
+    0.040248,
+    0.041133,
+    0.039843,
+    0.039239
+  ],
+  "per_image_results": [
+    {
+      "image_id": 369771,
+      "file_name": "000000369771.jpg",
+      "detections": 3,
+      "gt_annotations": 10,
+      "processing_time": 0.966112,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            314.25503849983215,
+            274.23535108566284
+          ],
+          "confidence": 0.17094369232654572,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            316.7042165994644,
+            350.2403926849365
+          ],
+          "confidence": 0.1425980180501938,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            144.5460081100464,
+            253.92249584197998
+          ],
+          "confidence": 0.13064031302928925,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 550691,
+      "file_name": "000000550691.jpg",
+      "detections": 4,
+      "gt_annotations": 8,
+      "processing_time": 0.040198,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            313.1166160106659,
+            269.29497599601746
+          ],
+          "confidence": 0.18220771849155426,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            316.6656091809273,
+            338.3191752433777
+          ],
+          "confidence": 0.14136217534542084,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            97.32374966144562,
+            258.779593706131
+          ],
+          "confidence": 0.12974245846271515,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        },
+        {
+          "bbox": [
+            129.79639053344727,
+            0.0,
+            478.1820869445801,
+            42.70673677325249
+          ],
+          "confidence": 0.10144801437854767,
+          "class_id": 61,
+          "coco_id": 62,
+          "class_name": "chair"
+        }
+      ]
+    },
+    {
+      "image_id": 178982,
+      "file_name": "000000178982.jpg",
+      "detections": 4,
+      "gt_annotations": 9,
+      "processing_time": 0.043716,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            313.2840919494629,
+            238.22141199558973
+          ],
+          "confidence": 0.18496859073638916,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            317.0233231782913,
+            288.77408891916275
+          ],
+          "confidence": 0.1414111703634262,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            149.78917717933655,
+            234.06627725809813
+          ],
+          "confidence": 0.12952382862567902,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        },
+        {
+          "bbox": [
+            174.0988540649414,
+            0.0,
+            577.1072006225586,
+            39.37703608162701
+          ],
+          "confidence": 0.1023029312491417,
+          "class_id": 61,
+          "coco_id": 62,
+          "class_name": "chair"
+        }
+      ]
+    },
+    {
+      "image_id": 15597,
+      "file_name": "000000015597.jpg",
+      "detections": 3,
+      "gt_annotations": 3,
+      "processing_time": 0.043879,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            210.62441917485557,
+            351.70125007629395
+          ],
+          "confidence": 0.1855878233909607,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            214.4989291485399,
+            432.49364852905273
+          ],
+          "confidence": 0.14202959835529327,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            67.37748086429201,
+            307.3158097267151
+          ],
+          "confidence": 0.13137564063072205,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 359855,
+      "file_name": "000000359855.jpg",
+      "detections": 3,
+      "gt_annotations": 1,
+      "processing_time": 0.042103,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            308.4238242357969,
+            277.1811406686902
+          ],
+          "confidence": 0.1792481392621994,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            317.77729630470276,
+            337.21738904714584
+          ],
+          "confidence": 0.13908344507217407,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            99.4351914525032,
+            252.80828520655632
+          ],
+          "confidence": 0.1352495700120926,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 51938,
+      "file_name": "000000051938.jpg",
+      "detections": 3,
+      "gt_annotations": 13,
+      "processing_time": 0.038932,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            308.7173184007406,
+            260.54724991321564
+          ],
+          "confidence": 0.17933115363121033,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            313.88821721076965,
+            368.8977098464966
+          ],
+          "confidence": 0.13505281507968903,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            84.44961190223694,
+            222.79589653015137
+          ],
+          "confidence": 0.13201889395713806,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 64718,
+      "file_name": "000000064718.jpg",
+      "detections": 4,
+      "gt_annotations": 3,
+      "processing_time": 0.040047,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            259.0405837446451,
+            226.903114028275
+          ],
+          "confidence": 0.16766750812530518,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            317.73522913455963,
+            334.1857235431671
+          ],
+          "confidence": 0.14528751373291016,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            225.0179362297058,
+            253.0704334974289
+          ],
+          "confidence": 0.13655321300029755,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            205.45045413076878,
+            257.32254934310913
+          ],
+          "confidence": 0.10057171434164047,
+          "class_id": 75,
+          "coco_id": 76,
+          "class_name": "keyboard"
+        }
+      ]
+    },
+    {
+      "image_id": 72813,
+      "file_name": "000000072813.jpg",
+      "detections": 3,
+      "gt_annotations": 3,
+      "processing_time": 0.046447,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            311.87482334673405,
+            264.27198708057404
+          ],
+          "confidence": 0.18799763917922974,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            317.1404269337654,
+            326.6648840904236
+          ],
+          "confidence": 0.14138944447040558,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            109.729143679142,
+            234.13013398647308
+          ],
+          "confidence": 0.13254354894161224,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 453860,
+      "file_name": "000000453860.jpg",
+      "detections": 3,
+      "gt_annotations": 2,
+      "processing_time": 0.043968,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            313.49378801882267,
+            241.0206949710846
+          ],
+          "confidence": 0.17750896513462067,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            316.1782768368721,
+            301.92054545879364
+          ],
+          "confidence": 0.1398421823978424,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            292.15840578079224,
+            204.2573443762958
+          ],
+          "confidence": 0.1364821195602417,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 445792,
+      "file_name": "000000445792.jpg",
+      "detections": 3,
+      "gt_annotations": 7,
+      "processing_time": 0.046418,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            241.60324822878465,
+            203.7694277241826
+          ],
+          "confidence": 0.1812015324831009,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            245.85282639600337,
+            288.6619381606579
+          ],
+          "confidence": 0.13724489510059357,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            64.56013722345233,
+            173.01286943256855
+          ],
+          "confidence": 0.13073404133319855,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 284445,
+      "file_name": "000000284445.jpg",
+      "detections": 4,
+      "gt_annotations": 24,
+      "processing_time": 0.045854,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            311.3289910554886,
+            327.58292765915394
+          ],
+          "confidence": 0.1812111884355545,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            316.681604385376,
+            411.68570986390114
+          ],
+          "confidence": 0.14233894646167755,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            118.23448270559311,
+            292.6012431308627
+          ],
+          "confidence": 0.1387721449136734,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        },
+        {
+          "bbox": [
+            202.59714126586914,
+            0.0,
+            640.0,
+            63.18815263733268
+          ],
+          "confidence": 0.10070604085922241,
+          "class_id": 61,
+          "coco_id": 62,
+          "class_name": "chair"
+        }
+      ]
+    },
+    {
+      "image_id": 384808,
+      "file_name": "000000384808.jpg",
+      "detections": 3,
+      "gt_annotations": 7,
+      "processing_time": 0.045619,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            180.85860775317997,
+            271.5187557041645
+          ],
+          "confidence": 0.1815846860408783,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            186.13123084651306,
+            330.9836834669113
+          ],
+          "confidence": 0.13932546973228455,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            60.06019556662068,
+            249.70340356230736
+          ],
+          "confidence": 0.13442812860012054,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 417285,
+      "file_name": "000000417285.jpg",
+      "detections": 3,
+      "gt_annotations": 6,
+      "processing_time": 0.044979,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            309.7051653265953,
+            174.33830976486206
+          ],
+          "confidence": 0.17985676229000092,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            314.3083682656288,
+            241.92585945129395
+          ],
+          "confidence": 0.13679161667823792,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            95.99483609199524,
+            177.353355884552
+          ],
+          "confidence": 0.12796182930469513,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 29187,
+      "file_name": "000000029187.jpg",
+      "detections": 3,
+      "gt_annotations": 2,
+      "processing_time": 0.069662,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            307.2274746000767,
+            267.97838208451867
+          ],
+          "confidence": 0.16636444628238678,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            313.1253111362457,
+            395.31188175082207
+          ],
+          "confidence": 0.13628332316875458,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            101.77951276302338,
+            240.51493221148849
+          ],
+          "confidence": 0.1330171823501587,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 182202,
+      "file_name": "000000182202.jpg",
+      "detections": 4,
+      "gt_annotations": 4,
+      "processing_time": 0.046197,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            312.4357685446739,
+            214.2481381073594
+          ],
+          "confidence": 0.18361443281173706,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            316.53043895959854,
+            271.06340527534485
+          ],
+          "confidence": 0.14082610607147217,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            128.5020849108696,
+            192.5524579267949
+          ],
+          "confidence": 0.13002344965934753,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        },
+        {
+          "bbox": [
+            156.0095977783203,
+            0.0,
+            562.6833343505859,
+            36.852624393068254
+          ],
+          "confidence": 0.10055340081453323,
+          "class_id": 61,
+          "coco_id": 62,
+          "class_name": "chair"
+        }
+      ]
+    },
+    {
+      "image_id": 384661,
+      "file_name": "000000384661.jpg",
+      "detections": 3,
+      "gt_annotations": 7,
+      "processing_time": 0.041984,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            243.07475972454995,
+            205.62635036185384
+          ],
+          "confidence": 0.18312309682369232,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            248.04341956041753,
+            246.7513382434845
+          ],
+          "confidence": 0.13757091760635376,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            75.33810683526099,
+            170.45868770219386
+          ],
+          "confidence": 0.13376371562480927,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 436617,
+      "file_name": "000000436617.jpg",
+      "detections": 3,
+      "gt_annotations": 33,
+      "processing_time": 0.040248,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            310.9749926626682,
+            231.88108326867223
+          ],
+          "confidence": 0.18713568150997162,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            312.3062878847122,
+            334.03308391571045
+          ],
+          "confidence": 0.13024240732192993,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            80.91309756040573,
+            184.1268179938197
+          ],
+          "confidence": 0.12938162684440613,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 348881,
+      "file_name": "000000348881.jpg",
+      "detections": 4,
+      "gt_annotations": 5,
+      "processing_time": 0.041133,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            312.9531017690897,
+            259.25281432271004
+          ],
+          "confidence": 0.18046371638774872,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            315.86530685424805,
+            329.7702569067478
+          ],
+          "confidence": 0.13866619765758514,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            248.2351303100586,
+            213.0454777283594
+          ],
+          "confidence": 0.1328105926513672,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        },
+        {
+          "bbox": [
+            85.5950927734375,
+            0.0,
+            433.49010467529297,
+            45.69892942160368
+          ],
+          "confidence": 0.10051477700471878,
+          "class_id": 61,
+          "coco_id": 62,
+          "class_name": "chair"
+        }
+      ]
+    },
+    {
+      "image_id": 356432,
+      "file_name": "000000356432.jpg",
+      "detections": 3,
+      "gt_annotations": 5,
+      "processing_time": 0.039843,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            308.70907358825207,
+            225.76722466945648
+          ],
+          "confidence": 0.17949137091636658,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            313.8768422603607,
+            333.1872615814209
+          ],
+          "confidence": 0.13509736955165863,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            90.2544754743576,
+            195.27542412281036
+          ],
+          "confidence": 0.1336735337972641,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        }
+      ]
+    },
+    {
+      "image_id": 180188,
+      "file_name": "000000180188.jpg",
+      "detections": 4,
+      "gt_annotations": 1,
+      "processing_time": 0.039239,
+      "detection_details": [
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            312.65008866786957,
+            267.9290646314621
+          ],
+          "confidence": 0.18261349201202393,
+          "class_id": 66,
+          "coco_id": 67,
+          "class_name": "dining table"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            316.25129103660583,
+            337.76495933532715
+          ],
+          "confidence": 0.13989384472370148,
+          "class_id": 6,
+          "coco_id": 7,
+          "class_name": "train"
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0,
+            224.13641691207886,
+            215.5652855336666
+          ],
+          "confidence": 0.13386858999729156,
+          "class_id": 0,
+          "coco_id": 1,
+          "class_name": "person"
+        },
+        {
+          "bbox": [
+            110.6401252746582,
+            0.0,
+            472.6679039001465,
+            45.77333450317383
+          ],
+          "confidence": 0.10059396177530289,
+          "class_id": 61,
+          "coco_id": 62,
+          "class_name": "chair"
+        }
+      ]
+    }
+  ]
+}

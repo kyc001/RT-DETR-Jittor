@@ -159,3 +159,10 @@ from jittor_rt_detr.src.nn.criterion.rtdetr_criterion import build_criterion
 
 
 000000282037.jpg
+
+
+因为现在已经通过了单元自检，我希望扩大训练的规模
+希望使用train50作为训练集，训练50次，保存训练得到的模型，再使用val50进行测试，将测试结果数据进行记录，可视化
+使用的脚本根据已有的单元自检的脚本进行迁移，尽量不要从头开始写，可能会出现别的问题
+
+/home/kyc/project/RT-DETR/experiments/ultimate_sanity_check.py，参考rtdetr_pytorch内代码
