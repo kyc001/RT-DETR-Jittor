@@ -158,36 +158,18 @@ def postprocess_outputs(outputs, original_size, score_threshold=0.2):
         else:
             pred_classes = argmax_result
 
-        # 转换为numpy
+        print(f"   分数范围: {max_scores.min().item():.4f} - {max_scores.max().item():.4f}")
+
+        # 严格的检测验证
         scores_np = max_scores.numpy()
-        classes_np = pred_classes.numpy()
-        boxes_np = pred_boxes.numpy()
-
-        print(f"   分数范围: {scores_np.min():.4f} - {scores_np.max():.4f}")
-        print(f"   类别索引范围: {classes_np.min()} - {classes_np.max()}")
-
-        # 显示前5个最高分数的预测
-        top_indices = np.argsort(scores_np)[::-1][:5]
-        print(f"   前10个预测:")
-        for i, idx in enumerate(top_indices[:10]):
-            class_idx = classes_np[idx]
-            score = scores_np[idx]
-            coco_id, class_name = convert_to_coco_class(class_idx)
-            print(f"     {i+1}: 类别{class_idx}({class_name}), 分数{score:.4f}")
-
-        # 转换边界框格式：从中心点格式到左上右下格式，并缩放到640x640
-        boxes_640_xyxy = []
-        for box in boxes_np:
-            cx, cy, w, h = box
-            x1 = (cx - w/2) * 640
-            y1 = (cy - h/2) * 640
-            x2 = (cx + w/2) * 640
-            y2 = (cy + h/2) * 640
-            boxes_640_xyxy.append([x1, y1, x2, y2])
+        top_indices = np.argsort(scores_np)[::-1][:20]  # 前20个预测
 
         # 应用NMS过滤
+        print(f"🔄 应用NMS过滤重复检测...")
+        boxes_640 = pred_boxes.numpy() * 640  # 转换到640x640坐标系用于NMS
         filtered_boxes, filtered_scores, filtered_classes = nms_filter(
-            boxes_640_xyxy, scores_np, classes_np, 0.5, score_threshold
+            boxes_640, scores_np, pred_classes.numpy(),
+            iou_threshold=0.5, score_threshold=score_threshold
         )
 
         print(f"   NMS前: {len(scores_np)}个检测")
@@ -251,7 +233,7 @@ def convert_to_coco_class(class_idx):
     return coco_id, class_name
 
 def nms_filter(boxes, scores, classes, iou_threshold=0.5, score_threshold=0.3):
-    """改进的NMS过滤，保留多个不同类别的检测"""
+    """简单的NMS过滤，去除重复检测（完全按照ultimate_sanity_check.py）"""
     if len(boxes) == 0:
         return [], [], []
 
@@ -259,51 +241,36 @@ def nms_filter(boxes, scores, classes, iou_threshold=0.5, score_threshold=0.3):
     sorted_indices = np.argsort(scores)[::-1]
 
     keep_indices = []
-    kept_classes = set()
-
     for i in sorted_indices:
         if scores[i] < score_threshold:
-            continue
-
-        current_class = classes[i]
-
-        # 如果已经保留了3个不同类别，且当前类别已存在，跳过
-        if len(kept_classes) >= 3 and current_class in kept_classes:
             continue
 
         # 检查与已保留的框是否重叠过多
         keep_this = True
         for j in keep_indices:
-            # 只与同类别的框计算IoU
-            if classes[j] == current_class:
-                # 计算IoU
-                box1 = boxes[i]
-                box2 = boxes[j]
+            # 计算IoU
+            box1 = boxes[i]
+            box2 = boxes[j]
 
-                # 计算交集
-                x1 = max(box1[0], box2[0])
-                y1 = max(box1[1], box2[1])
-                x2 = min(box1[2], box2[2])
-                y2 = min(box1[3], box2[3])
+            # 计算交集
+            x1 = max(box1[0], box2[0])
+            y1 = max(box1[1], box2[1])
+            x2 = min(box1[2], box2[2])
+            y2 = min(box1[3], box2[3])
 
-                if x2 > x1 and y2 > y1:
-                    intersection = (x2 - x1) * (y2 - y1)
-                    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-                    area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
-                    union = area1 + area2 - intersection
-                    iou = intersection / union if union > 0 else 0
+            if x2 > x1 and y2 > y1:
+                intersection = (x2 - x1) * (y2 - y1)
+                area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+                area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+                union = area1 + area2 - intersection
+                iou = intersection / union if union > 0 else 0
 
-                    if iou > iou_threshold:
-                        keep_this = False
-                        break
+                if iou > iou_threshold:
+                    keep_this = False
+                    break
 
         if keep_this:
             keep_indices.append(i)
-            kept_classes.add(current_class)
-
-            # 限制最多保留5个检测
-            if len(keep_indices) >= 5:
-                break
 
     return [boxes[i] for i in keep_indices], [scores[i] for i in keep_indices], [classes[i] for i in keep_indices]
 
@@ -371,7 +338,7 @@ def main():
         'data_dir': '/home/kyc/project/RT-DETR/data/coco2017_50',
         'results_dir': '/home/kyc/project/RT-DETR/results/model_evaluation',
         'num_test_images': 20,  # 测试图像数量
-        'score_threshold': 0.10,  # 置信度阈值（进一步降低以检测更多类别）
+        'score_threshold': 0.15,  # 置信度阈值（调整以适应实际模型输出）
         'iou_threshold': 0.5     # NMS IoU阈值
     }
     

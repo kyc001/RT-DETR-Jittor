@@ -104,7 +104,7 @@ cd ~/project/RT-DETR/pytorch_rt_detr
 python tools/train.py --config configs/rtdetr/rtdetr_r18vd_6x_coco.yml
 python -m tools.train --config configs/rtdetr/rtdetr_r18vd_6x_coco.yml
 
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple 
 
 
 
@@ -166,3 +166,7 @@ from jittor_rt_detr.src.nn.criterion.rtdetr_criterion import build_criterion
 使用的脚本根据已有的单元自检的脚本进行迁移，尽量不要从头开始写，可能会出现别的问题
 
 /home/kyc/project/RT-DETR/experiments/ultimate_sanity_check.py，参考rtdetr_pytorch内代码
+
+
+
+当前的问题是，我选择用jittor实现的论文是RT-DETR模型,参数量为31M,我现在已经基本确定模型是可用的,但是由于计算资源有限，如果用少量数据的训练效果很差，学习不到特征。
