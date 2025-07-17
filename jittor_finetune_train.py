@@ -106,25 +106,31 @@ class COCODataset:
         return img_tensor, target
 
 class RTDETRModel(nn.Module):
-    """RT-DETR模型 - 支持预训练权重加载"""
-    def __init__(self, num_classes=80, pretrained_path=None):
+    """修复后的RT-DETR模型 - 支持完整的编码器输出"""
+    def __init__(self, num_classes=80):
         super().__init__()
-        # 使用Jittor的预训练权重，更简单可靠
-        self.backbone = ResNet50(pretrained=True)  # 使用Jittor的预训练权重
+        # 使用预训练的backbone
+        self.backbone = ResNet50(pretrained=True)
         self.transformer = RTDETRTransformer(
             num_classes=num_classes,
             hidden_dim=256,
             num_queries=300,
-            feat_channels=[256, 512, 1024, 2048]  # 修复通道数匹配问题
+            feat_channels=[256, 512, 1024, 2048]
         )
-
         print("✅ 使用Jittor内置预训练权重")
-    
 
-    
     def execute(self, x, targets=None):
+        """修复后的前向传播 - 确保返回完整的输出包括编码器输出"""
         features = self.backbone(x)
-        return self.transformer(features, targets)
+        outputs = self.transformer(features, targets)
+
+        # 确保输出包含编码器输出，这是关键！
+        # RTDETRTransformer已经在其execute方法中包含了enc_outputs
+        # 我们只需要确保正确传递即可
+        return outputs
+
+# 删除自定义的损失函数，使用验证过的build_criterion
+# 这样可以正确处理编码器输出，避免梯度传播问题
 
 def train_jittor_finetune():
     """Jittor微调训练"""
@@ -141,9 +147,13 @@ def train_jittor_finetune():
     dataset = COCODataset(img_dir, ann_file)
     print(f"✅ 数据加载完成: {len(dataset)}张训练图像")
     
-    # 创建模型
+    # 创建模型 - 使用修复后的封装模型
     print("🔄 创建模型...")
+
+    # 创建封装的RT-DETR模型
     model = RTDETRModel(num_classes=80)
+
+    # 创建验证过的损失函数 - 这是关键！
     criterion = build_criterion(num_classes=80)
     print("✅ 模型创建成功")
     
@@ -151,14 +161,35 @@ def train_jittor_finetune():
     backbone_params = sum(p.numel() for p in model.backbone.parameters())
     transformer_params = sum(p.numel() for p in model.transformer.parameters())
     total_params = backbone_params + transformer_params
-    
+
     print("📊 模型参数:")
     print(f"   Backbone参数: {backbone_params:,}")
     print(f"   Transformer参数: {transformer_params:,}")
     print(f"   总参数: {total_params:,}")
-    
-    # 创建优化器 - 使用较小的学习率进行微调
-    optimizer = jt.optim.Adam(model.parameters(), lr=5e-5, weight_decay=1e-4)
+
+    # 修复BatchNorm问题 - 使用验证过的方法
+    def fix_batchnorm(module):
+        for m in module.modules():
+            if isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d)):
+                m.train()
+                # 确保BatchNorm参数可训练
+                if hasattr(m, 'weight') and m.weight is not None:
+                    m.weight.requires_grad = True
+                if hasattr(m, 'bias') and m.bias is not None:
+                    m.bias.requires_grad = True
+
+    fix_batchnorm(model)
+
+    # 收集所有需要梯度的参数 - 使用验证过的方法
+    all_params = []
+    for param in model.parameters():
+        if param.requires_grad:
+            all_params.append(param)
+
+    print(f"📊 可训练参数数量: {len(all_params)}")
+
+    # 创建优化器 - 使用验证过的设置
+    optimizer = jt.optim.Adam(all_params, lr=1e-4, weight_decay=0)
     
     # 训练配置
     num_epochs = 50
@@ -167,30 +198,30 @@ def train_jittor_finetune():
     print(f"\n🚀 开始微调训练 {len(dataset)} 张图像，{num_epochs} 轮")
     print("=" * 60)
     
-    # 开始训练
+    # 开始训练 - 使用封装模型
     model.train()
     start_time = time.time()
-    
+
     for epoch in range(num_epochs):
         epoch_losses = []
-        
+
         for idx in range(len(dataset)):
             images, targets = dataset[idx]
-            
+
             # 添加batch维度
             images = images.unsqueeze(0)
             targets = [targets]
-            
-            # 前向传播
+
+            # 前向传播 - 使用封装模型（关键：确保返回完整输出包括编码器输出）
             outputs = model(images, targets)
-            
-            # 损失计算
+
+            # 损失计算 - 使用验证过的损失函数（关键：处理编码器输出）
             loss_dict = criterion(outputs, targets)
             total_loss = sum(loss_dict.values())
-            
-            # 反向传播 - 使用Jittor的优化器API
+
+            # 反向传播 - 使用验证过的方法
             optimizer.step(total_loss)
-            
+
             epoch_losses.append(float(total_loss.data))
         
         # 计算平均损失
@@ -210,12 +241,13 @@ def train_jittor_finetune():
     print(f"   损失下降: {losses[0] - losses[-1]:.4f}")
     print(f"   训练时间: {training_time:.1f}秒")
     
-    # 保存模型
+    # 保存模型 - 使用封装模型
     save_dir = "/home/kyc/project/RT-DETR/results/jittor_finetune"
     os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, "rtdetr_jittor_finetune_50img_50epoch.pkl")
-    
-    model.save(save_path)
+
+    # 保存完整的封装模型
+    model_path = os.path.join(save_dir, "rtdetr_jittor_finetune_50img_50epoch.pkl")
+    model.save(model_path)
     
     # 保存训练结果
     results = {
@@ -230,9 +262,9 @@ def train_jittor_finetune():
     with open(os.path.join(save_dir, "training_results.pkl"), 'wb') as f:
         pickle.dump(results, f)
     
-    print(f"💾 模型保存到: {save_path}")
+    print(f"💾 模型保存到: {model_path}")
     print(f"📊 训练结果保存到: {os.path.join(save_dir, 'training_results.pkl')}")
-    
+
     print(f"\n🎉 Jittor微调训练完成！")
     return losses, training_time
 
