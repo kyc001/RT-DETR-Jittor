@@ -1,0 +1,22 @@
+# RT-DETR基础配置
+
+# 模型配置
+num_classes: 80
+hidden_dim: 256
+num_queries: 300
+
+# 训练配置
+epochs: 50
+batch_size: 2
+lr: 0.0001
+weight_decay: 0.0001
+
+# 数据配置
+dataset: coco
+data_root: ./data/coco2017
+train_ann: annotations/instances_train2017.json
+val_ann: annotations/instances_val2017.json
+
+# 输出配置
+output_dir: ./output/rtdetr_jittor
+save_interval: 10
