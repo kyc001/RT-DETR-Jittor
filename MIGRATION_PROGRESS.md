@@ -1,5 +1,78 @@
 # RT-DETR PyTorch → Jittor 迁移进度文档
 
+## 2026-02-06 深入对齐更新（三）
+
+### 本轮关键结论
+
+1. `loss_vfl` 的“2x 偏差”已定位为**回归脚本配置不一致**，不是 Jittor loss 实现错误。  
+   - 原因：`regression_compare.py` 的 PyTorch 侧把 `loss_vfl` 权重硬编码为 `1`；Jittor 侧实际从配置映射为 `loss_focal -> loss_vfl = 2`。  
+   - 修复后：`loss_vfl` 与 `loss_vfl_aux_*` 差异收敛到 `1e-6` 量级。
+
+2. 引擎补齐了 `SetCriterion` 配置透传，避免训练时隐性配置漂移。  
+   - 文件：`rtdetr_jittor/src/core/engine.py`、`rtdetr_jittor/src/zoo/rtdetr/rtdetr_criterion.py`  
+   - 新增/修复：  
+     - `criterion.alpha/gamma/eos_coef` 配置透传到 `build_criterion`  
+     - 兼容 `matcher.weight_dict` 嵌套格式与 `use_focal`/`use_focal_loss` 字段  
+     - `SetCriterion` legacy 映射时同步读取 `alpha/gamma/eos_coef`
+
+3. 跨框架回归已达到“前向 + 匹配 + loss 分项”高精度一致。  
+   - 报告：`rtdetr_jittor/migration_artifacts/regression/compare_report.json`
+
+### 回归命令（本轮）
+
+```bash
+micromamba activate jt
+cd rtdetr_jittor
+python tools/regression_compare.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --output-dir migration_artifacts/regression \
+  --input-size 320 --batch-size 1 --num-boxes 3 --num-denoising 0
+```
+
+### 回归结果（本轮）
+
+- `logits.mean_abs`: `2.0503e-07`
+- `boxes.mean_abs`: `7.6027e-09`
+- `matcher_exact_match`: `true`
+- `matcher_from_cost_exact_match`: `true`
+- `loss_vfl` 绝对差：`1.43e-06`
+- `loss_bbox` 绝对差：`1.19e-07`
+- `loss_giou` 绝对差：`2.38e-07`
+
+参数统计说明（避免误判）：
+- `param_count_exact_match = false`（统计口径差异：Jittor `parameters()` 含部分 buffer-like 项）
+- `state_param_like_numel_exact_match = true`（可训练参数体量已对齐）
+
+### Gate 复验（本轮实跑）
+
+```bash
+micromamba activate jt
+cd rtdetr_jittor
+
+python tools/infer.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --image migration_artifacts/sample.jpg --device cpu --input-size 320 \
+  --output-dir migration_artifacts/gates_round2/infer --score-threshold 0.2
+
+python tools/train.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --max-samples 4 --epochs 1 --batch-size 2 \
+  --input-size 320 --output-dir migration_artifacts/gates_round2/train --print-freq 1
+
+python tools/eval.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --max-samples 4 --input-size 320 \
+  --checkpoint migration_artifacts/gates_round2/train/last_ckpt.pkl \
+  --output-dir migration_artifacts/gates_round2/eval
+
+python tools/train.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --max-samples 4 --epochs 2 --batch-size 2 \
+  --input-size 320 --output-dir migration_artifacts/gates_round2/train_resume \
+  --resume migration_artifacts/gates_round2/train/last_ckpt.pkl --print-freq 1
+```
+
+结果：
+- infer: ✅ 输出 `sample_detections.json` 与可视化图
+- train(1 epoch): ✅ 成功生成 `last_ckpt/best_ckpt`
+- eval: ✅ 指标链路成功（fallback 指标可诊断）
+- resume: ✅ 从 `epoch=1` 继续训练成功
+
 ## 2026-02-06 深入对齐更新（二）
 
 ### 关键修复（本轮）

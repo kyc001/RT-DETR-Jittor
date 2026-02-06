@@ -326,7 +326,15 @@ class SetCriterion(nn.Module):
         return dn_match_indices
 
 
-def build_criterion(num_classes, matcher=None, weight_dict=None, losses=None):
+def build_criterion(
+    num_classes,
+    matcher=None,
+    weight_dict=None,
+    losses=None,
+    alpha=0.2,
+    gamma=2.0,
+    eos_coef=1e-4,
+):
     """构建RT-DETR criterion"""
     if matcher is None:
         matcher = HungarianMatcher(
@@ -353,8 +361,9 @@ def build_criterion(num_classes, matcher=None, weight_dict=None, losses=None):
         matcher=matcher,
         weight_dict=weight_dict,
         losses=losses,
-        alpha=0.2,
-        gamma=2.0,
+        alpha=float(alpha),
+        gamma=float(gamma),
+        eos_coef=float(eos_coef),
         num_classes=num_classes
     )
 

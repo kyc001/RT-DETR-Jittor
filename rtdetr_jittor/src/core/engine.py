@@ -116,6 +116,9 @@ DEFAULT_CONFIG: Dict[str, Any] = {
             "alpha": 0.25,
             "gamma": 2.0,
         },
+        "alpha": 0.2,
+        "gamma": 2.0,
+        "eos_coef": 1e-4,
         "weight_dict": None,
         "losses": ["vfl", "boxes"],
     },
@@ -235,7 +238,16 @@ def _apply_legacy_config(raw_cfg: Dict[str, Any], cfg: Dict[str, Any]) -> None:
         if "num_classes" in set_criterion_cfg:
             cfg["num_classes"] = int(set_criterion_cfg["num_classes"])
         if isinstance(set_criterion_cfg.get("matcher"), dict):
-            _deep_merge(cfg["criterion"]["matcher"], set_criterion_cfg["matcher"])
+            matcher_cfg = copy.deepcopy(set_criterion_cfg["matcher"])
+            nested_weight = matcher_cfg.pop("weight_dict", None)
+            if isinstance(nested_weight, dict):
+                _deep_merge(cfg["criterion"]["matcher"], nested_weight)
+            _deep_merge(cfg["criterion"]["matcher"], matcher_cfg)
+            if "use_focal" in matcher_cfg:
+                cfg["criterion"]["matcher"]["use_focal_loss"] = bool(matcher_cfg["use_focal"])
+        for key in ["alpha", "gamma", "eos_coef"]:
+            if key in set_criterion_cfg:
+                cfg["criterion"][key] = float(set_criterion_cfg[key])
         if isinstance(set_criterion_cfg.get("weight_dict"), dict):
             cfg["criterion"]["weight_dict"] = copy.deepcopy(set_criterion_cfg["weight_dict"])
         if isinstance(set_criterion_cfg.get("losses"), list):
@@ -584,13 +596,14 @@ def build_model_components(
     )
 
     matcher_cfg = cfg["criterion"]["matcher"]
+    matcher_weight_cfg = matcher_cfg.get("weight_dict", {}) if isinstance(matcher_cfg.get("weight_dict"), dict) else {}
     matcher = HungarianMatcher(
         weight_dict={
-            "cost_class": float(matcher_cfg.get("cost_class", 2)),
-            "cost_bbox": float(matcher_cfg.get("cost_bbox", 5)),
-            "cost_giou": float(matcher_cfg.get("cost_giou", 2)),
+            "cost_class": float(matcher_cfg.get("cost_class", matcher_weight_cfg.get("cost_class", 2))),
+            "cost_bbox": float(matcher_cfg.get("cost_bbox", matcher_weight_cfg.get("cost_bbox", 5))),
+            "cost_giou": float(matcher_cfg.get("cost_giou", matcher_weight_cfg.get("cost_giou", 2))),
         },
-        use_focal_loss=bool(matcher_cfg.get("use_focal_loss", True)),
+        use_focal_loss=bool(matcher_cfg.get("use_focal_loss", matcher_cfg.get("use_focal", True))),
         alpha=float(matcher_cfg.get("alpha", 0.25)),
         gamma=float(matcher_cfg.get("gamma", 2.0)),
     )
@@ -613,6 +626,9 @@ def build_model_components(
         matcher=matcher,
         weight_dict=weight_dict,
         losses=losses,
+        alpha=float(cfg["criterion"].get("alpha", 0.2)),
+        gamma=float(cfg["criterion"].get("gamma", 2.0)),
+        eos_coef=float(cfg["criterion"].get("eos_coef", 1e-4)),
     )
 
     postprocessor = build_postprocessor(
