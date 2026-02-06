@@ -1,88 +1,103 @@
 #!/usr/bin/env python3
-"""Training script for Jittor RT-DETR"""
+"""Train RT-DETR in Jittor with reusable migration workflow."""
 
+import argparse
 import os
 import sys
-import argparse
 
-# 添加项目路径
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, PROJECT_ROOT)
 
-import jittor as jt
-from src.core.yaml_config import YAMLConfig
-from src.nn.backbone.resnet import ResNet50
-from src.zoo.rtdetr.rtdetr_decoder import RTDETRTransformer
-from src.nn.criterion.rtdetr_criterion import build_criterion
+from src.core.engine import load_runtime_config, run_training, set_runtime
 
-def main(args):
-    """Main training function"""
-    # 设置Jittor
-    jt.flags.use_cuda = 1
-    
-    # 加载配置
-    if args.config:
-        cfg = YAMLConfig(args.config)
-    else:
-        # 默认配置
-        cfg = YAMLConfig.__new__(YAMLConfig)
-        cfg.yaml_cfg = {
-            'num_classes': 80,
-            'hidden_dim': 256,
-            'num_queries': 300,
-            'lr': 1e-4,
-            'epochs': 50
-        }
-    
-    # 创建模型
-    backbone = ResNet50(pretrained=False)
-    transformer = RTDETRTransformer(
-        num_classes=cfg.yaml_cfg.get('num_classes', 80),
-        hidden_dim=cfg.yaml_cfg.get('hidden_dim', 256),
-        num_queries=cfg.yaml_cfg.get('num_queries', 300),
-        feat_channels=[256, 512, 1024, 2048]
+
+def build_argparser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="RT-DETR Jittor training")
+    parser.add_argument(
+        "--config",
+        "-c",
+        type=str,
+        default="configs/rtdetr/rtdetr_r50vd_6x_coco.yml",
+        help="Path to YAML config",
     )
-    criterion = build_criterion(cfg.yaml_cfg.get('num_classes', 80))
-    
-    print("✅ 模型创建成功")
-    print(f"   参数数量: {sum(p.numel() for p in list(backbone.parameters()) + list(transformer.parameters())):,}")
-    
-    # 创建优化器
-    all_params = list(backbone.parameters()) + list(transformer.parameters())
-    optimizer = jt.optim.SGD(all_params, lr=cfg.yaml_cfg.get('lr', 1e-4))
-    
-    print("🚀 开始训练...")
-    
-    # 简单的训练循环示例
-    for epoch in range(cfg.yaml_cfg.get('epochs', 50)):
-        # 这里应该是实际的数据加载和训练逻辑
-        print(f"Epoch {epoch + 1}/{cfg.yaml_cfg.get('epochs', 50)}")
-        
-        # 示例前向传播
-        x = jt.randn(1, 3, 640, 640, dtype=jt.float32)
-        feats = backbone(x)
-        outputs = transformer(feats)
-        
-        # 示例目标
-        targets = [{
-            'boxes': jt.rand(3, 4, dtype=jt.float32),
-            'labels': jt.array([1, 2, 3], dtype=jt.int64)
-        }]
-        
-        # 损失计算
-        loss_dict = criterion(outputs, targets)
-        total_loss = sum(loss_dict.values())
-        
-        # 反向传播
-        optimizer.backward(total_loss)
-        
-        if epoch % 10 == 0:
-            print(f"  损失: {total_loss.item():.4f}")
+    parser.add_argument("--output-dir", type=str, default="", help="Output directory")
+    parser.add_argument("--device", type=str, default="cuda", choices=["cuda", "cpu"])
+    parser.add_argument("--seed", type=int, default=None)
+
+    parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument("--batch-size", type=int, default=None)
+    parser.add_argument("--lr", type=float, default=None)
+    parser.add_argument("--weight-decay", type=float, default=None)
+    parser.add_argument("--warmup-steps", type=int, default=None)
+    parser.add_argument("--grad-accum-steps", type=int, default=None)
+    parser.add_argument("--save-every", type=int, default=None)
+    parser.add_argument("--eval-every", type=int, default=None)
+    parser.add_argument("--print-freq", type=int, default=None)
+    parser.add_argument("--input-size", type=int, default=None)
+    parser.add_argument("--num-classes", type=int, default=None)
+    parser.add_argument("--score-threshold", type=float, default=None)
+    parser.add_argument("--no-ema", action="store_true", help="Disable EMA")
+
+    parser.add_argument("--resume", type=str, default="", help="Resume from checkpoint")
+    parser.add_argument("--checkpoint", type=str, default="", help="Warm start checkpoint")
+
+    parser.add_argument("--dummy-data", action="store_true", help="Use synthetic dataset")
+    parser.add_argument("--max-samples", type=int, default=-1, help="Limit dataset samples")
+    return parser
+
+
+def main(args: argparse.Namespace) -> None:
+    overrides = {}
+    if args.output_dir:
+        overrides["output_dir"] = args.output_dir
+    if args.seed is not None:
+        overrides["seed"] = int(args.seed)
+    if args.epochs is not None:
+        overrides["train.epochs"] = int(args.epochs)
+    if args.batch_size is not None:
+        overrides["train.batch_size"] = int(args.batch_size)
+    if args.lr is not None:
+        overrides["train.lr"] = float(args.lr)
+    if args.weight_decay is not None:
+        overrides["train.weight_decay"] = float(args.weight_decay)
+    if args.warmup_steps is not None:
+        overrides["train.warmup_steps"] = int(args.warmup_steps)
+    if args.grad_accum_steps is not None:
+        overrides["train.grad_accum_steps"] = int(args.grad_accum_steps)
+    if args.save_every is not None:
+        overrides["train.save_every"] = int(args.save_every)
+    if args.eval_every is not None:
+        overrides["train.eval_every"] = int(args.eval_every)
+    if args.print_freq is not None:
+        overrides["train.print_freq"] = int(args.print_freq)
+    if args.input_size is not None:
+        overrides["input_size"] = int(args.input_size)
+    if args.num_classes is not None:
+        overrides["num_classes"] = int(args.num_classes)
+    if args.score_threshold is not None:
+        overrides["eval.score_threshold"] = float(args.score_threshold)
+    if args.no_ema:
+        overrides["train.ema"] = False
+
+    cfg = load_runtime_config(args.config, overrides=overrides)
+    set_runtime(device=args.device, seed=int(cfg["seed"]))
+
+    result = run_training(
+        cfg=cfg,
+        output_dir=str(cfg["output_dir"]),
+        resume_path=args.resume,
+        checkpoint_path=args.checkpoint,
+        use_dummy_data=bool(args.dummy_data),
+        max_samples=int(args.max_samples),
+    )
+
+    print("Training finished:")
+    print(f"  last_ckpt: {result['last_ckpt']}")
+    print(f"  best_ckpt: {result['best_ckpt']}")
+    print(f"  best_metric: {result['best_metric']:.6f}")
+    print(f"  history_len: {result['history_len']}")
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Train RT-DETR with Jittor')
-    parser.add_argument('--config', type=str, help='配置文件路径')
-    parser.add_argument('--resume', type=str, help='恢复训练的检查点')
-    parser.add_argument('--test-only', action='store_true', help='仅测试模式')
-    
-    args = parser.parse_args()
-    main(args)
+    parser = build_argparser()
+    main(parser.parse_args())

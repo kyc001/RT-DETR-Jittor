@@ -31,8 +31,10 @@ logs/
 checkpoints/
 
 # Data
-data/
+/data/
 datasets/
+!src/data/
+!src/data/*.py
 
 # OS
 .DS_Store

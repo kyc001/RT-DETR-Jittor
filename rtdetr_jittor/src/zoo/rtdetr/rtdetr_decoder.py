@@ -55,7 +55,7 @@ class MSDeformableAttention(nn.Module):
         jt.init.constant_(self.sampling_offsets.weight, 0)
         thetas = jt.arange(self.num_heads, dtype=jt.float32) * (2.0 * math.pi / self.num_heads)
         grid_init = jt.stack([jt.cos(thetas), jt.sin(thetas)], -1)
-        grid_init = grid_init / jt.maximum(grid_init.abs(), jt.array(1e-8)).max(-1, keepdims=True)[0]
+        grid_init = grid_init / jt.maximum(grid_init.abs(), jt.array(1e-8)).max(-1, keepdims=True)
         grid_init = grid_init.reshape(self.num_heads, 1, 1, 2)
         grid_init = tile(grid_init, [1, self.num_levels, self.num_points, 1])
         scaling = jt.arange(1, self.num_points + 1, dtype=jt.float32).reshape(1, 1, -1, 1)
@@ -449,15 +449,8 @@ class RTDETRTransformer(nn.Module):
         enc_outputs_class = self.enc_score_head(output_memory)
         enc_outputs_coord_unact = self.enc_bbox_head(output_memory) + anchors
 
-        # topk - Jittor兼容实现（对每个batch独立处理）
-        class_max = enc_outputs_class.max(-1)[0]  # [bs, total_tokens]
-        # Jittor的argsort在2D张量上可能有限制，转换为逐batch处理
-        topk_ind_list = []
-        for i in range(bs):
-            # 对每个batch的1D张量进行argsort
-            sorted_idx = jt.argsort(-class_max[i])[0]  # 降序排序，取负号
-            topk_ind_list.append(sorted_idx[:self.num_queries])
-        topk_ind = jt.stack(topk_ind_list, dim=0)  # [bs, num_queries]
+        class_max = enc_outputs_class.max(-1)
+        _, topk_ind = jt.topk(class_max, self.num_queries, dim=1)
 
         # Gather reference points
         topk_ind_expand = topk_ind.unsqueeze(-1).expand([bs, self.num_queries, enc_outputs_coord_unact.shape[-1]])

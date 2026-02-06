@@ -1,188 +1,112 @@
-"""RT-DETR Post-processor
-Aligned with PyTorch version implementation
-"""
+"""RT-DETR postprocessor aligned with PyTorch behavior."""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List
 
 import jittor as jt
 import jittor.nn as nn
-import numpy as np
 
 from .box_ops import box_cxcywh_to_xyxy
 
-def ensure_float32(x):
-    """确保张量为float32类型"""
+__all__ = ["RTDETRPostProcessor", "build_postprocessor"]
+
+
+def _to_var(x: Any) -> jt.Var:
     if isinstance(x, jt.Var):
-        return x.float32()
-    else:
         return x
+    return jt.array(x)
+
 
 class RTDETRPostProcessor(nn.Module):
-    """Post-processor for RT-DETR"""
-    
-    def __init__(self, num_classes=80, use_focal_loss=True, num_top_queries=300, remap_mscoco_category=False):
-        """
-        Args:
-            num_classes: Number of object classes
-            use_focal_loss: Whether focal loss was used during training
-            num_top_queries: Number of top queries to keep
-            remap_mscoco_category: Whether to remap MSCOCO category IDs
-        """
+    def __init__(
+        self,
+        num_classes: int = 80,
+        use_focal_loss: bool = True,
+        num_top_queries: int = 300,
+        remap_mscoco_category: bool = False,
+    ) -> None:
         super().__init__()
-        self.num_classes = num_classes
         self.use_focal_loss = use_focal_loss
-        self.num_top_queries = num_top_queries
+        self.num_top_queries = int(num_top_queries)
+        self.num_classes = int(num_classes)
         self.remap_mscoco_category = remap_mscoco_category
-        
-        # MSCOCO category remapping if needed
-        if remap_mscoco_category:
-            self.coco_category_mapping = self._get_coco_category_mapping()
+        self.deploy_mode = False
 
-    def _get_coco_category_mapping(self):
-        """Get MSCOCO category ID mapping"""
-        # MSCOCO has 80 classes but category IDs are not continuous
-        coco_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
-        return {i: coco_id for i, coco_id in enumerate(coco_ids)}
+    def extra_repr(self) -> str:
+        return (
+            f"use_focal_loss={self.use_focal_loss}, "
+            f"num_classes={self.num_classes}, "
+            f"num_top_queries={self.num_top_queries}"
+        )
 
-    def execute(self, outputs, target_sizes=None):
-        """Post-process the outputs
-        
-        Args:
-            outputs: Dict containing 'pred_logits' and 'pred_boxes'
-            target_sizes: Tensor of shape [batch_size, 2] containing target image sizes (height, width)
-            
-        Returns:
-            List of dicts, each containing 'scores', 'labels', and 'boxes' for one image
-        """
-        pred_logits = ensure_float32(outputs['pred_logits'])
-        pred_boxes = ensure_float32(outputs['pred_boxes'])
-        
-        batch_size = pred_logits.shape[0]
-        
-        # Get class probabilities
+    def execute(
+        self,
+        outputs: Dict[str, jt.Var],
+        orig_target_sizes: Any = None,
+        target_sizes: Any = None,
+    ):
+        logits, boxes = outputs["pred_logits"], outputs["pred_boxes"]
+
+        if orig_target_sizes is None:
+            orig_target_sizes = target_sizes
+        if orig_target_sizes is None:
+            raise ValueError("orig_target_sizes/target_sizes must be provided")
+        orig_target_sizes = _to_var(orig_target_sizes).float32()
+        bbox_pred = box_cxcywh_to_xyxy(boxes)
+        bbox_pred = bbox_pred * orig_target_sizes.repeat(1, 2).unsqueeze(1)
+
         if self.use_focal_loss:
-            # For focal loss, use sigmoid
-            prob = jt.sigmoid(pred_logits)
-            # Get max probability and corresponding class for each query
-            scores = prob.max(dim=-1)[0]
-            labels = prob.argmax(dim=-1)
+            scores = jt.sigmoid(logits)
+            scores, index = jt.topk(scores.flatten(1), self.num_top_queries, dim=-1)
+            labels = index % self.num_classes
+            index = index // self.num_classes
+            gather_index = index.unsqueeze(-1).repeat(1, 1, bbox_pred.shape[-1])
+            boxes = jt.gather(bbox_pred, 1, gather_index)
         else:
-            # For standard cross-entropy, use softmax
-            prob = jt.nn.softmax(pred_logits, dim=-1)
-            # Exclude background class (last class)
-            scores = prob[..., :-1].max(dim=-1)[0]
-            labels = prob[..., :-1].argmax(dim=-1)
-        
-        # Convert boxes from cxcywh to xyxy format
-        boxes = box_cxcywh_to_xyxy(pred_boxes)
-        
-        # Scale boxes to target image size if provided
-        if target_sizes is not None:
-            if len(target_sizes) != batch_size:
-                raise ValueError(f"Expected target_sizes to have length {batch_size}, got {len(target_sizes)}")
-            
-            # target_sizes: [batch_size, 2] -> [height, width]
-            img_h, img_w = target_sizes.unbind(1)
-            scale_fct = jt.stack([img_w, img_h, img_w, img_h], dim=1)
-            boxes = boxes * scale_fct[:, None, :]
-        
-        results = []
-        for i in range(batch_size):
-            # Get top-k queries based on scores
-            if self.num_top_queries < pred_logits.shape[1]:
-                top_scores, top_indices = scores[i].topk(self.num_top_queries)
-                top_labels = labels[i][top_indices]
-                top_boxes = boxes[i][top_indices]
-            else:
-                top_scores = scores[i]
-                top_labels = labels[i]
-                top_boxes = boxes[i]
-            
-            # Remap category IDs if needed
-            if self.remap_mscoco_category:
-                remapped_labels = []
-                for label in top_labels:
-                    label_id = int(label.item())
-                    if label_id in self.coco_category_mapping:
-                        remapped_labels.append(self.coco_category_mapping[label_id])
-                    else:
-                        remapped_labels.append(label_id)
-                top_labels = jt.array(remapped_labels, dtype=jt.int64)
-            
-            results.append({
-                'scores': ensure_float32(top_scores),
-                'labels': top_labels,
-                'boxes': ensure_float32(top_boxes)
-            })
-        
+            scores = nn.softmax(logits, dim=-1)[:, :, :-1]
+            labels = scores.argmax(dim=-1)
+            scores = scores.max(dim=-1)
+            boxes = bbox_pred
+            if scores.shape[1] > self.num_top_queries:
+                scores, index = jt.topk(scores, self.num_top_queries, dim=-1)
+                labels = jt.gather(labels, 1, index)
+                gather_index = index.unsqueeze(-1).repeat(1, 1, boxes.shape[-1])
+                boxes = jt.gather(boxes, 1, gather_index)
+
+        if self.deploy_mode:
+            return labels, boxes, scores
+
+        if self.remap_mscoco_category:
+            from ...data.coco import mscoco_label2category
+
+            mapped = [mscoco_label2category[int(x)] for x in labels.reshape((-1,)).numpy().tolist()]
+            labels = jt.array(mapped, dtype=labels.dtype).reshape(labels.shape)
+
+        results: List[Dict[str, jt.Var]] = []
+        for lab, box, sco in zip(labels, boxes, scores):
+            results.append({"labels": lab, "boxes": box, "scores": sco})
         return results
 
-    def execute_single(self, outputs, target_size=None, score_threshold=0.3):
-        """Post-process outputs for a single image with score filtering
-        
-        Args:
-            outputs: Dict containing 'pred_logits' and 'pred_boxes' for single image
-            target_size: Tuple (height, width) for target image size
-            score_threshold: Minimum score threshold for detections
-            
-        Returns:
-            Dict containing 'scores', 'labels', and 'boxes'
-        """
-        pred_logits = ensure_float32(outputs['pred_logits'])
-        pred_boxes = ensure_float32(outputs['pred_boxes'])
-        
-        # Remove batch dimension if present
-        if pred_logits.dim() == 3:
-            pred_logits = pred_logits[0]
-            pred_boxes = pred_boxes[0]
-        
-        # Get class probabilities
-        if self.use_focal_loss:
-            prob = jt.sigmoid(pred_logits)
-            scores = prob.max(dim=-1)[0]
-            labels = prob.argmax(dim=-1)
-        else:
-            prob = jt.nn.softmax(pred_logits, dim=-1)
-            scores = prob[..., :-1].max(dim=-1)[0]
-            labels = prob[..., :-1].argmax(dim=-1)
-        
-        # Filter by score threshold
-        keep = scores > score_threshold
-        scores = scores[keep]
-        labels = labels[keep]
-        boxes = pred_boxes[keep]
-        
-        # Convert boxes to xyxy format
-        boxes = box_cxcywh_to_xyxy(boxes)
-        
-        # Scale boxes if target size provided
-        if target_size is not None:
-            img_h, img_w = target_size
-            scale_fct = jt.array([img_w, img_h, img_w, img_h], dtype=jt.float32)
-            boxes = boxes * scale_fct
-        
-        # Remap category IDs if needed
-        if self.remap_mscoco_category:
-            remapped_labels = []
-            for label in labels:
-                label_id = int(label.item())
-                if label_id in self.coco_category_mapping:
-                    remapped_labels.append(self.coco_category_mapping[label_id])
-                else:
-                    remapped_labels.append(label_id)
-            labels = jt.array(remapped_labels, dtype=jt.int64)
-        
-        return {
-            'scores': ensure_float32(scores),
-            'labels': labels,
-            'boxes': ensure_float32(boxes)
-        }
+    def deploy(self):
+        self.eval()
+        self.deploy_mode = True
+        return self
 
-def build_postprocessor(num_classes=80, use_focal_loss=True, num_top_queries=300, remap_mscoco_category=False):
-    """Build RT-DETR post-processor"""
+    @property
+    def iou_types(self):
+        return ("bbox",)
+
+
+def build_postprocessor(
+    num_classes: int = 80,
+    use_focal_loss: bool = True,
+    num_top_queries: int = 300,
+    remap_mscoco_category: bool = False,
+):
     return RTDETRPostProcessor(
         num_classes=num_classes,
         use_focal_loss=use_focal_loss,
         num_top_queries=num_top_queries,
-        remap_mscoco_category=remap_mscoco_category
+        remap_mscoco_category=remap_mscoco_category,
     )
-
-__all__ = ['RTDETRPostProcessor', 'build_postprocessor']

@@ -103,11 +103,11 @@ def masks_to_boxes(masks):
     y, x = jt.meshgrid(y, x)
 
     x_mask = (masks * x.unsqueeze(0))
-    x_max = x_mask.flatten(1).max(-1)[0]
-    x_min = jt.where(masks.bool(), x_mask, jt.array(1e8)).flatten(1).min(-1)[0]
+    x_max = x_mask.flatten(1).max(-1)
+    x_min = jt.where(masks.bool(), x_mask, jt.array(1e8)).flatten(1).min(-1)
 
     y_mask = (masks * y.unsqueeze(0))
-    y_max = y_mask.flatten(1).max(-1)[0]
-    y_min = jt.where(masks.bool(), y_mask, jt.array(1e8)).flatten(1).min(-1)[0]
+    y_max = y_mask.flatten(1).max(-1)
+    y_min = jt.where(masks.bool(), y_mask, jt.array(1e8)).flatten(1).min(-1)
 
     return jt.stack([x_min, y_min, x_max, y_max], 1)

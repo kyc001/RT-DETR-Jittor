@@ -67,18 +67,13 @@ def deformable_attention_core_func(value, value_spatial_shapes, value_level_star
         # N_, Lq_, M_, P_, 2 -> N_, M_, Lq_, P_, 2 -> N_*M_, Lq_, P_, 2
         sampling_grid_l_ = sampling_grids[:, :, :, level].transpose(1, 2).view(bs * n_head, Len_q, n_points, 2)
 
-        # 使用双线性插值进行采样
-        # 注意：Jittor的grid_sample可能与PyTorch略有不同，这里使用简化版本
-        try:
-            sampling_value_l_ = jt.nn.grid_sample(
-                value_l_,
-                sampling_grid_l_,
-                mode='bilinear',
-                padding_mode='zeros',
-                align_corners=False)
-        except:
-            # 如果grid_sample不可用，使用简化的最近邻插值
-            sampling_value_l_ = simple_grid_sample(value_l_, sampling_grid_l_)
+        sampling_value_l_ = nn.grid_sample(
+            value_l_,
+            sampling_grid_l_,
+            mode='bilinear',
+            padding_mode='zeros',
+            align_corners=False,
+        )
         sampling_value_list.append(sampling_value_l_)
 
     # 重新组织注意力权重

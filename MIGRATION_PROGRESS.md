@@ -1,5 +1,206 @@
 # RT-DETR PyTorch → Jittor 迁移进度文档
 
+## 2026-02-06 深入对齐更新（二）
+
+### 关键修复（本轮）
+
+1. 修复 Jittor `max(dim=...)` 语义误用导致的解码器选框错误  
+   - 文件：`rtdetr_jittor/src/zoo/rtdetr/rtdetr_decoder.py`
+   - 问题：原实现把 `enc_outputs_class.max(-1)[0]` 当成 PyTorch tuple 风格使用，实际在 Jittor 中会错误切片。
+   - 结果：`topk` 选框恢复正常，主干 `bbox`/`giou` loss 与 PyTorch 显著接近。
+
+2. 对齐 postprocessor 到 PyTorch 同构逻辑  
+   - 文件：`rtdetr_jittor/src/zoo/rtdetr/rtdetr_postprocessor.py`
+   - 变更：focal 分支改为 `scores.flatten(1)` 全类 top-k + index 反解 `labels/query_idx` + gather boxes。
+   - 兼容：同时支持 `orig_target_sizes` 与 `target_sizes` 参数名，修复 `infer` 调用异常。
+
+3. 修复 box/mask 统计中的 `max/min` API 用法  
+   - 文件：`rtdetr_jittor/src/zoo/rtdetr/box_ops.py`
+   - 变更：移除错误的 `[0]` 索引，保证 `masks_to_boxes` 数值正确。
+
+4. 收敛 deformable attention 采样路径  
+   - 文件：`rtdetr_jittor/src/zoo/rtdetr/utils.py`
+   - 变更：移除近似 fallback，固定使用 `nn.grid_sample` 路径，避免静默退化。
+
+### 跨框架回归结果（PyTorch vs Jittor）
+
+命令：
+```bash
+micromamba activate jt
+cd rtdetr_jittor
+python tools/regression_compare.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --output-dir migration_artifacts/regression --input-size 320 --batch-size 1 --num-boxes 3
+```
+
+本轮结果（`migration_artifacts/regression/compare_report.json`）：
+- `logits.mean_abs`: `0.4056`（仍有差距）
+- `boxes.mean_abs`: `0.2035`（较修复前下降）
+- `loss_bbox` 绝对差：`11.64 -> 0.16`（显著改善）
+- `loss_giou` 绝对差：`0.61 -> 0.04`（显著改善）
+- `matcher_exact_match`: `false`（未完全一致）
+- 权重加载：`loaded=460, missing=3, mismatched=0`
+
+说明：
+- `missing=3` 为预期非权重缓存项（`encoder.pos_embed2`、`decoder.anchors`、`decoder.valid_mask`）。
+- 当前“可训练/可评估/可续训”链路已通，但“与 PyTorch 数值完全一致”仍未达成。
+
+### Gate 链路复验（本轮实跑）
+
+```bash
+micromamba activate jt
+cd rtdetr_jittor
+
+# infer
+python tools/infer.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --image migration_artifacts/gates/test.jpg --device cpu --input-size 320 \
+  --output-dir migration_artifacts/gates/infer --score-threshold 0.2
+
+# train 1 epoch
+python tools/train.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --max-samples 4 --epochs 1 --batch-size 2 \
+  --input-size 320 --output-dir migration_artifacts/gates/train --print-freq 1
+
+# eval
+python tools/eval.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --max-samples 4 --input-size 320 \
+  --checkpoint migration_artifacts/gates/train/last_ckpt.pkl \
+  --output-dir migration_artifacts/gates/eval
+
+# resume
+python tools/train.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --max-samples 4 --epochs 2 --batch-size 2 \
+  --input-size 320 --output-dir migration_artifacts/gates/train_resume \
+  --resume migration_artifacts/gates/train/last_ckpt.pkl --print-freq 1
+```
+
+结果：
+- infer: ✅ 成功输出 `json/vis`
+- train(1 epoch): ✅ 成功，生成 `last_ckpt/best_ckpt`
+- eval: ✅ 成功，输出 loss 与 fallback 指标
+- resume: ✅ 成功续训，checkpoint 加载 `loaded=463, missing=0`
+
+## 2026-02-06 可复用迁移流程落地（本次更新）
+
+### 1) 验收标准（先写清楚再动代码）
+
+| 项目 | 必须通过 | 可接受误差 | 本次状态 |
+|---|---|---|---|
+| 单图推理 `infer` | 能加载权重、前向、输出结果文件 | - | ✅ 已通过（含 ckpt 加载） |
+| 最小训练 `train` | 1 epoch 可跑通并保存 checkpoint | loss 不出现 NaN/Inf | ✅ 已通过 |
+| 评估链路 `eval` | 输出可解释指标 + 预测文件 | AP 对齐阈值建议 `< 0.3`（需真实 COCO 对齐） | ✅ 已通过（dummy fallback 指标） |
+| 续训 `resume` | 从 `last_ckpt` 继续训练 | 指标连续、epoch 连续 | ✅ 已通过 |
+
+说明：
+- AP 差值阈值（如 `< 0.3`）需要在同数据、同权重、同后处理配置下与 PyTorch 基线对齐后才能最终判定。
+- 当前仓库无 COCO 数据集，故本次验收采用 `--dummy-data` 跑链路完整性，真实 AP 对齐留在后续基线回归阶段执行。
+
+### 2) 基线冻结（可复用模板）
+
+建议固定产物目录：`rtdetr_jittor/migration_artifacts/`
+
+需要冻结并记录：
+- 原框架版本：PyTorch commit、依赖版本、CUDA/cuDNN。
+- 基线配置：训练配置文件、后处理阈值、是否 EMA。
+- 基线权重：`best`/`last` 路径。
+- 基线日志：训练日志、评估日志。
+- 固定样本输入输出：单图输入 + logits/boxes + 后处理结果（用于数值回归）。
+
+本次已落地输出（Jittor 侧）：
+- `rtdetr_jittor/migration_artifacts/sample.jpg`
+- `rtdetr_jittor/migration_artifacts/run/sample_raw_outputs.npz`
+- `rtdetr_jittor/migration_artifacts/run/sample_detections.json`
+- `rtdetr_jittor/migration_artifacts/run_train/train_log.jsonl`
+- `rtdetr_jittor/migration_artifacts/run_eval/eval_log.jsonl`
+
+### 3) 迁移骨架与门禁（Gate）实现
+
+新增/重构文件：
+- `rtdetr_jittor/src/core/engine.py`
+  - 统一 train/eval/infer 主循环
+  - 配置读取与 legacy 映射
+  - checkpoint 策略（`last_ckpt` 可 resume，`best_ckpt` 轻量部署）
+  - 旧 checkpoint 字段兼容（`model/state_dict/ema.module`）
+  - warmup + cosine lr、EMA、grad accumulation
+  - COCO AP 评估 + fallback 指标兜底
+- `rtdetr_jittor/src/data/coco_dataset.py`
+  - COCO dataset、collate、轻增强（hflip）、label 编码
+  - box 目标统一为归一化 `cxcywh`（匹配 RT-DETR criterion 预期）
+  - `DummyDetectionDataset` 用于无数据环境链路验收
+- `rtdetr_jittor/tools/train.py`
+- `rtdetr_jittor/tools/eval.py`
+- `rtdetr_jittor/tools/infer.py`（新增）
+
+Gate 对应状态：
+- Gate-1（推理最小链路）: ✅
+- Gate-2（数据管线）: ✅
+- Gate-3（loss + matcher 可反传）: ✅
+- 训练循环/优化器/EMA: ✅
+- 评估链路（COCO + fallback）: ✅
+- checkpoint / resume: ✅
+
+额外修复：
+- `rtdetr_jittor/src/zoo/rtdetr/rtdetr.py`  
+  训练多尺度输入 `multi_scale` 采样值显式转 `int`，修复 Jittor `interpolate` 类型报错。
+
+### 4) 分阶段自检命令（已执行）
+
+环境：
+```bash
+micromamba activate jt
+```
+
+已执行：
+```bash
+python -m py_compile \
+  rtdetr_jittor/src/core/engine.py \
+  rtdetr_jittor/src/data/coco_dataset.py \
+  rtdetr_jittor/src/zoo/rtdetr/rtdetr.py \
+  rtdetr_jittor/tools/infer.py \
+  rtdetr_jittor/tools/train.py \
+  rtdetr_jittor/tools/eval.py
+
+cd rtdetr_jittor
+python tools/infer.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  -i migration_artifacts/sample.jpg \
+  --checkpoint migration_artifacts/run_train/last_ckpt.pkl \
+  --device cpu --input-size 320 --output-dir migration_artifacts/run_infer_ckpt
+
+python tools/train.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --epochs 1 --batch-size 1 --max-samples 2 \
+  --input-size 320 --output-dir migration_artifacts/run_train
+
+python tools/eval.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --checkpoint migration_artifacts/run_train/last_ckpt.pkl \
+  --device cpu --dummy-data --max-samples 2 --input-size 320 \
+  --output-dir migration_artifacts/run_eval
+
+python tools/train.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml \
+  --device cpu --dummy-data --epochs 2 --batch-size 1 --max-samples 2 \
+  --input-size 320 --resume migration_artifacts/run_train/last_ckpt.pkl \
+  --output-dir migration_artifacts/run_train_resume
+```
+
+结果摘要：
+- infer: ✅ 输出可视化与 JSON，且成功加载 checkpoint（`loaded=463`）。
+- train(1 epoch): ✅ 成功，loss 为有限值，生成 `last_ckpt/best_ckpt`。
+- eval: ✅ 成功，输出 `val_loss` 与 fallback 指标，预测文件落盘。
+- resume: ✅ 成功，从 `epoch=1` 继续训练并生成新 `last_ckpt`。
+
+### 5) 文档化与固化
+
+- 已将迁移流程、验收标准、自检命令、结果写入本文件。
+- 已更新忽略规则，确保实验产物不污染代码变更：
+  - `.gitignore`
+  - `rtdetr_jittor/.gitignore`
+
+### 6) 已知限制 / 下一步
+
+- 当前 AP 对齐尚未在真实 COCO 上与 PyTorch 基线做严格差值比对（目标阈值建议 `AP 差 < 0.3`）。
+- 下一步应在真实 COCO 数据与统一权重下执行：
+  - PyTorch vs Jittor 同输入中间张量对比（logits、匹配结果、loss 分项）
+  - COCO AP 回归与吞吐/显存回归
+  - 将对齐结论回填到本文件“验收标准”表格。
+
 ## 迁移完成时间
 2026-01-29
 
@@ -173,7 +374,7 @@ python tools/convert_weights.py --jt2pt -i model.pkl -o model.pth
 | `torch.tile()` | 自定义`tile()`函数 |
 | `tensor.repeat()` | `jt.concat([tensor] * n)` |
 | `nn.binary_cross_entropy_with_logits()` | 自定义实现 |
-| `torch.topk(..., dim=1)` | 使用`jt.argsort()`逐batch处理 |
+| `torch.topk(..., dim=1)` | 使用`jt.topk(..., dim=1)` |
 | `tensor.all(..., keepdims=True)` | `tensor.all().unsqueeze()` |
 | `nn.ModuleList(generator)` | `nn.ModuleList([list])` |
 

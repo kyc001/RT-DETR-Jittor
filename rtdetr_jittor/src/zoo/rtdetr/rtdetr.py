@@ -22,7 +22,7 @@ class RTDETR(nn.Module):
     def execute(self, x, targets=None):
         """Forward pass - aligned with PyTorch version"""
         if self.multi_scale and self.training:
-            sz = np.random.choice(self.multi_scale)
+            sz = int(np.random.choice(self.multi_scale))
             x = nn.interpolate(x, size=[sz, sz])
 
         # Backbone前向传播

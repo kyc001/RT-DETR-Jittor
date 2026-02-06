@@ -16,7 +16,9 @@ Thumbs.db
 *.swp
 
 # 数据集 - 千万不要上传数据集！
-data/
+/data/
+!rtdetr_jittor/src/data/
+!rtdetr_jittor/src/data/*.py
 
 # 保存的模型权重
 *.pkl
@@ -36,3 +38,7 @@ checkpoints/
 *.pdparams
 
 pretrained/
+
+# Migration artifacts
+rtdetr_jittor/outputs/
+rtdetr_jittor/migration_artifacts/
